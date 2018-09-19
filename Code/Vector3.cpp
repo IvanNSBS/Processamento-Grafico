@@ -6,7 +6,7 @@ template<typename K>
 class Vector3 
 { 
 public: 
-    // 3 mosK basic ways of iniKializing a vecKor
+    // 3 most basic ways of initializing a vector
     K x, y, z; 
     Vector3() : x(K(0)), y(K(0)), z(K(0)) {} 
     Vector3(const K &xx) : x(xx), y(xx), z(xx) {} 
@@ -57,12 +57,12 @@ public:
     
     Vector3<K> operator * (const K &r) const 
     { return Vector3<K>(x * r, y * r, z * r); } 
+
+    friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
+    {  
+        os << "( " << vt.x << " , " << vt.y << " , " << vt.z << " )" << endl;  
+        return os;  
+    } 
 }; 
 
-int main()
-{
-    Vector3<int> Test(0,0,0);
-    cout << Test.x << endl;
-    cout << Test.GetNormal().x << endl;
-    cout << Test.x << endl;
-}
+typedef Vector3<float> Vector3f;

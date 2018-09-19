@@ -1,0 +1,117 @@
+#include <vector>
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <cstring>
+#include "Vector3.cpp"
+#include "Vector2.cpp"
+
+bool LoadObj(
+    const char* path, 
+    std::vector < Vector3f > & out_vertices,
+    std::vector < Vector2f > & out_uvs,
+    std::vector < Vector3f > & out_normals)
+{
+
+    std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
+    std::vector< Vector3f > temp_vertices;
+    std::vector< Vector2f > temp_uvs;
+    std::vector< Vector3f > temp_normals;
+
+    FILE* file = fopen(path, "r");
+    if(file == nullptr)
+    {
+        cout << "File cannot be oppened or does not exist" << endl;
+        return false;
+    }
+
+    while(true)
+    {
+        char lineHeader[256];
+        
+        int res = fscanf(file, "%s", lineHeader);
+        if(res == EOF)
+            break;
+
+        if ( strcmp( lineHeader, "v" ) == 0 )
+        {
+            Vector3f vertex;
+            fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
+            temp_vertices.push_back(vertex);
+        }
+
+        else if ( strcmp( lineHeader, "vt" ) == 0 )
+        {
+            Vector2f uv;
+            fscanf(file, "%f %f\n", &uv.x, &uv.y );
+            temp_uvs.push_back(uv);
+        }
+
+        else if ( strcmp( lineHeader, "vn" ) == 0 )
+        {
+            Vector3f normal;
+            fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
+            temp_normals.push_back(normal);
+        }
+
+        else if ( strcmp( lineHeader, "f" ) == 0 )
+        {
+            std::string vertex1, vertex2, vertex3;
+            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+            int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+            
+            if (matches != 9)
+            {
+                printf("File can't be read by our simple parser : ( Try exporting with other options )\n");
+                return false;
+            }
+
+            vertexIndices.push_back(vertexIndex[0]);
+            vertexIndices.push_back(vertexIndex[1]);
+            vertexIndices.push_back(vertexIndex[2]);
+            uvIndices    .push_back(uvIndex[0]);
+            uvIndices    .push_back(uvIndex[1]);
+            uvIndices    .push_back(uvIndex[2]);
+            normalIndices.push_back(normalIndex[0]);
+            normalIndices.push_back(normalIndex[1]);
+            normalIndices.push_back(normalIndex[2]);
+        } 
+    }
+
+    for( unsigned int i=0; i<vertexIndices.size(); i++ )
+    {
+        unsigned int vertexIndex = vertexIndices[i];
+        Vector3f vertex = temp_vertices[ vertexIndex-1 ];
+        out_vertices.push_back(vertex);
+    }
+
+    for( unsigned int i=0; i<uvIndices.size(); i++ )
+    {
+        unsigned int uvIndex = uvIndices[i];
+        Vector2f uv = temp_uvs[ uvIndex-1 ];
+        out_uvs.push_back(uv);
+    }
+
+    for( unsigned int i=0; i<normalIndices.size(); i++ )
+    {
+        unsigned int normalIndex = normalIndices[i];
+        Vector3f nrml = temp_normals[ normalIndex-1 ];
+        out_normals.push_back(nrml);
+    }
+    return true;
+}
+
+int main()
+{
+    std::vector< Vector3f > vertices;
+    std::vector< Vector2f > uvs;
+    std::vector< Vector3f > normals; // Won't be used at the moment.
+    LoadObj("test.obj", vertices, uvs, normals);
+
+    for(int i = 0; i < vertices.size(); i++)
+    {
+        cout << vertices[i];
+    }
+
+    return 0;
+}
