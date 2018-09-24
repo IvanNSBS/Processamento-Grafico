@@ -66,3 +66,4 @@ public:
 }; 
 
 typedef Vector3<float> Vector3f;
+typedef Vector3<double> Vector3d;
