@@ -41,14 +41,6 @@ public:
         return (x* v.x + y*v.y);
     }
 
-    /*Vector2<K> CrossProduct(const Vector2<K> &v) const 
-    { 
-        return Vector2<K>( 
-            y * v.z - z * v.y, 
-            z * v.x - x * v.z, 
-            x * v.y - y * v.x); 
-    }*/ 
-
     Vector2<K> operator + (const Vector2<K> &v) const 
     { return Vector2<K>(x + v.x, y + v.y); } 
 

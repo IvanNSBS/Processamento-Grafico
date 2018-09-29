@@ -21,4 +21,8 @@ Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, doub
 
     this->fov = fov;
     this->near = near;
+
+    this->axisX = target;
+    this->axisY = up;
+    this->axisZ = axisX.CrossProduct(axisY);
 }
