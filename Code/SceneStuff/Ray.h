@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.cpp"
+#include "Vector/Vector3.cpp"
 #include "float.h"
 
 class Ray
@@ -19,14 +19,3 @@ public:
 
     Vector3d getDirection() const;
 };
-
-Ray::Ray(Vector3d origin, Vector3d direction)
-{
-    this->origin = origin;
-    this->direction = direction;
-}
-
-Vector3d Ray::sample(const double& t)  const
-{
-    return this->origin + (direction * t);
-}

@@ -58,6 +58,9 @@ public:
     Vector3<K> operator * (const K &r) const 
     { return Vector3<K>(x * r, y * r, z * r); } 
 
+    //friend Vector3<K> operator * (const Vector3<K> &v, const K &r) const 
+    //{ return Vector3<K>(r * v.x, r * v.y, r* v.z); } 
+
     friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
     {  
         os << "( " << vt.x << " , " << vt.y << " , " << vt.z << " )" << endl;  
