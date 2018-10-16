@@ -1,5 +1,5 @@
 #pragma once
-#include "Vector/Vector3.cpp"
+#include "../Vector/Vector3.cpp"
 
 class Object;
 
