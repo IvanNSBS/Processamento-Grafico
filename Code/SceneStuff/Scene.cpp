@@ -106,11 +106,13 @@ void Scene::render()
             Vector3d raydir(xx, yy, -1); 
             raydir.Normalize();
             Ray ray = Ray(Vector3d(0), raydir);
-            *pixel = trace(ray); 
+            //*pixel = trace(ray); 
+            this->renderedImage->SetPixel(x,y,trace(ray)); 
         } 
     }  
+    this->renderedImage->SaveAsPBM();
     // Save result to a PPM image (keep these flags if you compile under Windows)
-    std::ofstream ofs("./untitled.ppm", std::ios::out | std::ios::binary); 
+    /*std::ofstream ofs("./untitled.ppm", std::ios::out | std::ios::binary); 
     ofs << "P6\n" << width << " " << height << "\n255\n"; 
     for (unsigned i = 0; i < width * height; ++i)
     { 
@@ -119,14 +121,14 @@ void Scene::render()
                (unsigned char)(std::min(double(1), (double)image[i].z) * 255); 
     }
     ofs.close(); 
-    delete [] image; 
+    delete [] image; */
 } 
 
 int main(int argc, char **argv) 
 { 
     //srand48(13); 
     std::vector<Object*> spheres; 
-    Scene *scene = new Scene();
+    Scene *scene = new Scene(640, 480);
     // position, radius, surface color, reflectivity, transparency, emission color
     scene->objects.push_back(new Object(Vector3d( 0.0, -40004, -20), 40000, new Material(Vector3d(0.20, 0.20, 0.20))) ); 
     scene->objects.push_back(new Object(Vector3d( 0.0,      0, -20),     4, new Material(Vector3d(1.00, 0.32, 0.36))) ); 
@@ -138,4 +140,4 @@ int main(int argc, char **argv)
     scene->render(); 
     
     return 0; 
-} 
+}  

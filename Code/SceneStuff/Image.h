@@ -1,6 +1,6 @@
 #include <vector>
 #include <string>
-#include "Vector/Vector3.cpp"
+#include "../Vector/Vector3.cpp"
 class Image
 {
     private:
@@ -12,5 +12,5 @@ class Image
 
     void SetPixel(int x, int y, const Vector3d& color);
 
-    void SaveAsPBM(const std::string &filePath);
+    void SaveAsPBM();
 };
