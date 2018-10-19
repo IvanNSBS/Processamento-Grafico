@@ -1,21 +1,41 @@
 #pragma once
 
-#include "Geometry.h"
-#include "Material.h"
-#include "ObjectIntersection.h"
+#include "../Vector/Vector3.cpp"
+#include "Ray.h"
+
+//O objeto é uma esfera.
+
+class Object;
+
+struct Material
+{
+public:
+    Vector3d surfaceColor, emissionColor;
+    //float transparency, reflection;
+
+    //Material(): surfaceColor(0), emissionColor(0){}
+    //Material(Vector3d sc):surfaceColor(sc), emissionColor(0) {}
+    Material(const Vector3d &sc = 0, const Vector3d &ec = 0):surfaceColor(sc), emissionColor(ec) {}
+};
 
 class Object {
 public:
-    Geometry* geometry;
     Material* material;
+    //Sphere parameters
+    Vector3d center;
+    int radius;
+    int radius2;
 
 public:
-    Object(Geometry* geometry, Material* material);
+    // Construtor
+    Object() : material(nullptr), center(0), radius(0), radius2(0){}
+    Object(const Vector3d &c, const int &rad, Material* mat): material(mat), center(c), radius(rad), radius2(rad*rad) {}
 
     /*
     Retorna true se r intersecta a cena e falso caso contrario
     Guarda possiveis informacoes sobre a interseccao em info, caso seja provido 
     */
-    bool intersect(const Ray& r, ObjectIntersection* info = nullptr) const;
-    
+
+    bool intersect(const Ray& r, double &t0, double &t1);
+    Vector3d getPoint() const;
 };

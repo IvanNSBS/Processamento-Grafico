@@ -1,4 +1,5 @@
-#include <iostream>
+#pragma once
+
 #include <math.h>
 using namespace std;
 
@@ -58,14 +59,17 @@ public:
     Vector3<K> operator * (const K &r) const 
     { return Vector3<K>(x * r, y * r, z * r); } 
 
-    //friend Vector3<K> operator * (const Vector3<K> &v, const K &r) const 
-    //{ return Vector3<K>(r * v.x, r * v.y, r* v.z); } 
+    Vector3<K> operator * (const Vector3<K> &v) const 
+    { return Vector3<K>(x * v.x, y * v.y, z * v.z); } 
 
-    friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
+
+    Vector3<K>& operator += (const Vector3<K> &v) 
+    { x += v.x, y += v.y, z += v.z; return *this; } 
+    /*friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
     {  
         os << "( " << vt.x << " , " << vt.y << " , " << vt.z << " )" << endl;  
         return os;  
-    } 
+    }*/ 
 }; 
 
 typedef Vector3<float> Vector3f;

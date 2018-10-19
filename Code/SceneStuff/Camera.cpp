@@ -8,9 +8,9 @@ Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, doub
     this->near = near;
 
     this->axisX = target;
-    
-    this->axisY = axisX - ((axisX.DotProduct(up))/(up.DotProduct(up)));
+    this->axisY = axisX - (up * ( (axisX.DotProduct(up) )/up.DotProduct(up) ) );
     this->axisZ = axisX.CrossProduct(axisY);
+    
     this->axisX.Normalize();
     this->axisY.Normalize();
     this->axisZ.Normalize();
