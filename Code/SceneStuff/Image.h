@@ -3,14 +3,16 @@
 #include "../Vector/Vector3.cpp"
 class Image
 {
-    private:
+public:
     int width, height;
+
+private:
     std::vector<Vector3d> buffer;
 
-    public:
+public:
     Image(int width, int height);
 
     void SetPixel(int x, int y, const Vector3d& color);
 
-    void SaveAsPBM();
+    void SaveAsPBM(const std::string &filepath, const std::string &filename);
 };

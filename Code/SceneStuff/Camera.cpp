@@ -1,21 +1,34 @@
 #include "Camera.h"
 
+#define M_PI 3.141592653589793
+
 Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, double near)
 {
     this->position = position;
 
     this->fov = fov;
     this->near = near;
+    SetCamAxisAndMatrix(position, target, up);
+}
 
+Camera::Camera(Image* im, Vector3d position, Vector3d target, Vector3d up, double fov, double near)
+{
+    this->canvas = im;
+    this->position = position;
+
+    this->fov = fov;
+    this->near = near;
+    SetCamAxisAndMatrix(position, target, up);
+}
+
+void Camera::SetCamAxisAndMatrix(Vector3d position, Vector3d target, Vector3d up)
+{
     this->axisZ = target;
     this->axisZ.Normalize();
-    cout << axisZ;
 
     this->axisY = up - (axisZ * ( (up.DotProduct(axisZ) )/axisZ.DotProduct(axisZ) ) );
-    cout << axisY;
 
     this->axisX = axisY.CrossProduct(axisZ);
-    cout << axisX;
 
     this->axisX.Normalize();
     this->axisY.Normalize();
@@ -37,33 +50,20 @@ Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, doub
     camToWorld.m[3][2] = position.z;
 }
 
-void Camera::LookAt(const Vector3d& from, const Vector3d& to)
+Ray Camera::GetRay(double x, double y)
 {
-    Vector3d forward = to - from;
-    forward.Normalize();
-    
-    Vector3d aux = Vector3d(0, 1, 0);
-    aux.Normalize();
 
-    Vector3d right = aux.CrossProduct(forward); 
-    Vector3d up = forward.CrossProduct(right); 
- 
-    camToWorld[0][0] = right.x; 
-    camToWorld[0][1] = right.y; 
-    camToWorld[0][2] = right.z; 
-    camToWorld[1][0] = up.x; 
-    camToWorld[1][1] = up.y; 
-    camToWorld[1][2] = up.z; 
-    camToWorld[2][0] = forward.x; 
-    camToWorld[2][1] = forward.y; 
-    camToWorld[2][2] = forward.z; 
- 
-    camToWorld[3][0] = from.x; 
-    camToWorld[3][1] = from.y; 
-    camToWorld[3][2] = from.z; 
-}
+    float invWidth = 1 / float(canvas->width), invHeight = 1 / float(canvas->height); 
+    float aspectratio = canvas->width / float(canvas->height); 
+    float angle = tan(M_PI * 0.5 * this->fov / 180.);
 
-Ray Camera::GetRay(double x, double y, int width, int height)
-{
-        
+    float Px = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio; 
+    float Py = (1 - 2 * ((y + 0.5) * invHeight)) * angle; 
+
+    Vector3d rayOrigin(0);
+    camToWorld.multVecMatrix(Vector3d(0), rayOrigin);
+    Vector3d dir;
+    camToWorld.multVecMatrix(Vector3d(Px, Py, -1), dir);
+    dir.Normalize();
+    return Ray(rayOrigin, dir);
 }

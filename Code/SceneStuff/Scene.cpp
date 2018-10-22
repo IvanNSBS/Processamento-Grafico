@@ -1,16 +1,16 @@
 #include "Scene.h"
 #include <algorithm>
 
-#include <cstdlib> 
-#include <cstdio> 
-#include <cmath> 
-#include <fstream> 
-#include <vector> 
-#include <iostream> 
-#include <cassert> 
+//#include <cstdlib> 
+//#include <cstdio> 
+//#include <cmath> 
+//#include <fstream> 
+//#include <vector> 
+//#include <iostream> 
+//#include <cassert> 
 
-#define INFINITY 1e8
-#define M_PI 3.141592653589793
+//#define INFINITY 1e8
+//#define M_PI 3.141592653589793
 
 #define MAX_RAY_DEPTH 5 
 
@@ -89,64 +89,43 @@ void Scene::add(Object* object)
     objects.push_back(object);
 }
 
-void Scene::render() 
+void Scene::RenderScene() 
 {   
-    unsigned width =  640, height = 480; 
-
-    float invWidth = 1 / float(width), invHeight = 1 / float(height); 
-    float fov = 60, aspectratio = width / float(height); 
-    float angle = tan(M_PI * 0.5 * fov / 180.);
-
-    //camera->LookAt(Vector3d(-0.20, 0, 0), Vector3d(0, 0, 1));
-    for(int i = 0; i < 4; i++)
-    {
-        for(int j = 0; j < 4; j++)
-        {
-            printf("camToWorld[%d][%d]: %f\n", i, j, camera->camToWorld[i][j]);
-        }
-    }
     // Trace rays
-    for (unsigned y = 0; y < height; ++y)
-    { 
-        for (unsigned x = 0; x < width; ++x)
-        { 
-            float xx = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio; 
-            float yy = (1 - 2 * ((y + 0.5) * invHeight)) * angle; 
-
-            /*Vector3d raydir(xx, yy, -1); 
-            //printf("(%f, %f, %f)\n", raydir.x, raydir.y, raydir.z);
-            raydir.Normalize();
-            Ray ray = Ray(Vector3d(0), raydir);*/
-
-            Vector3d rayOrigin(0);
-            camera->camToWorld.multVecMatrix(Vector3d(0), rayOrigin);
-            Vector3d dir;
-            camera->camToWorld.multVecMatrix(Vector3d(xx, yy, -1), dir);
-            dir.Normalize();
-            Ray ray = Ray(rayOrigin, dir);
- 
-            this->renderedImage->SetPixel(x,y,trace(ray)); 
-        } 
-    }  
-    this->renderedImage->SaveAsPBM();
+    for (unsigned y = 0; y < camera->canvas->height; ++y)
+        for (unsigned x = 0; x < camera->canvas->width; ++x)
+            this->camera->canvas->SetPixel( x, y, trace( camera->GetRay(x,y) ) ); 
+    
+    //Salva o ppm como RenderedCanvas na pasta RenderedImages
+    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas");
 } 
 
 int main(int argc, char **argv) 
 { 
-    //srand48(13); 
+    //Para compilar: g++ -o r -std=c++14 Scene.cpp Object.cpp Ray.cpp Camera.cpp Image.cpp
+
+
     std::vector<Object*> spheres; 
     Image *im = new Image(640, 480);
-    Camera *cam = new Camera( Vector3d(0, 0.9, -0.50), Vector3d(0, 0.5, 0.1), Vector3d(0,1,0), 60, 1 );
-    Scene *scene = new Scene(im, cam);
+
+    //camera bugada
+    //Camera *cam = new Camera( im, Vector3d(0, 0.9, -0.50), Vector3d(0, 0.5, 0.1), Vector3d(0,1,0), 90, 1 );
+
+    //camera nao bugada para testes
+    Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 90, 1 );
+
+
+    Scene *scene = new Scene(cam);
+
     // position, radius, surface color, reflectivity, transparency, emission color
-    scene->objects.push_back(new Object(Vector3d( 0.0, -40004, -20), 40000, new Material(Vector3d(0.20, 0.20, 0.20))) ); 
-    scene->objects.push_back(new Object(Vector3d( 0.0,      0, -20),     4, new Material(Vector3d(1.00, 0.32, 0.36))) ); 
-    scene->objects.push_back(new Object(Vector3d( 5.0,     -1, -15),     2, new Material(Vector3d(0.90, 0.76, 0.46))) ); 
-    scene->objects.push_back(new Object(Vector3d( 5.0,      0, -25),     3, new Material(Vector3d(0.65, 0.77, 0.97))) ); 
-    scene->objects.push_back(new Object(Vector3d(-5.5,      0, -15),     3, new Material(Vector3d(0.90, 0.90, 0.90))) ); 
+    scene->add(new Object(Vector3d( 0.0, -40004, -20), 40000, new Material(Vector3d(0.20, 0.20, 0.20))) ); 
+    scene->add(new Object(Vector3d( 0.0,      0, -20),     4, new Material(Vector3d(1.00, 0.32, 0.36))) ); 
+    scene->add(new Object(Vector3d( 5.0,     -1, -15),     2, new Material(Vector3d(0.90, 0.76, 0.46))) ); 
+    scene->add(new Object(Vector3d( 5.0,      0, -25),     3, new Material(Vector3d(0.65, 0.77, 0.97))) ); 
+    scene->add(new Object(Vector3d(-5.5,      0, -15),     3, new Material(Vector3d(0.90, 0.90, 0.90))) ); 
     // light
-    scene->objects.push_back(new Object(Vector3d( 0.0,     30, -30),     0, new Material(Vector3d(0.00, 0.00, 0.00), Vector3d(2.5))) ); 
-    scene->render(); 
+    scene->add(new Object(Vector3d( 0.0,     30, -30),     0, new Material(Vector3d(0.00, 0.00, 0.00), Vector3d(2.5))) ); 
+    scene->RenderScene(); 
     
     return 0; 
 }  
