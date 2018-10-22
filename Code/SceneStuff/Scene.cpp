@@ -1,17 +1,7 @@
 #include "Scene.h"
 #include <algorithm>
-#include <stdlib.h>
-
-//#include <cstdlib> 
-//#include <cstdio> 
+#include <stdlib.h> 
 #include <cmath> 
-//#include <fstream> 
-//#include <vector> 
-//#include <iostream> 
-//#include <cassert> 
-
-//#define INFINITY 1e8
-//#define M_PI 3.141592653589793
 
 #define MAX_RAY_DEPTH 5 
 
@@ -37,7 +27,7 @@ Vector3d Scene::trace(const Ray& r)
 
     // if there's no intersection return black or background color
     if (!sphere)
-         return Vector3d(5); 
+         return Vector3d(0.498, 0.69, 1); 
 
     Vector3d surfaceColor = 0; // color of the ray/surface of the object intersected by the ray 
     Vector3d phit = r.getOrigin() + r.getDirection() * tnear; // point of intersection 
@@ -107,7 +97,7 @@ void Scene::RenderScene()
             this->camera->canvas->SetPixel( x, y, trace( camera->GetRay(x,y) ) ); 
     
     //Salva o ppm como RenderedCanvas na pasta RenderedImages
-    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas1");
+    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas2");
 } 
 
 int main(int argc, char **argv) 
@@ -117,12 +107,10 @@ int main(int argc, char **argv)
     Image *im = new Image(1360, 720);
     
     //camera nao bugada para testes
-    //Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 60, 1 );
+    Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 60, 1 );
 
     //camera bugada
-    Camera *cam = new Camera( im, Vector3d(0, 15, -16.7), Vector3d(0, 5, 1), Vector3d(0,1,0), 60, 1 );
-
-
+    //Camera *cam = new Camera( im, Vector3d(0, 15, -16.7), Vector3d(0, 5, 1), Vector3d(0,1,0), 60, 1 );
     Scene *scene = new Scene(cam);
 
     // position, radius, surface color, reflectivity, transparency, emission color
