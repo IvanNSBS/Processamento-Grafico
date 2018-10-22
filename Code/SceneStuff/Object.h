@@ -11,11 +11,17 @@ struct Material
 {
 public:
     Vector3d surfaceColor, emissionColor;
+    float Kd; // Diffuse Factor
+    float Ks; // Specular Factor
+    float alpha; // Coeficiente de rugosidade 
+
     //float transparency, reflection;
 
     //Material(): surfaceColor(0), emissionColor(0){}
     //Material(Vector3d sc):surfaceColor(sc), emissionColor(0) {}
     Material(const Vector3d &sc = 0, const Vector3d &ec = 0):surfaceColor(sc), emissionColor(ec) {}
+    Material(const float &d = 1, const float &e = 1, const float &a = 1, 
+             const Vector3d &sc = 0, const Vector3d &ec = 0):surfaceColor(sc), emissionColor(ec), Kd(d), Ks(e), alpha(a) {}
 };
 
 class Object {

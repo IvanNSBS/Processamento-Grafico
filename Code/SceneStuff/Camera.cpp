@@ -27,11 +27,11 @@ void Camera::SetCamAxisAndMatrix(Vector3d position, Vector3d target, Vector3d up
     this->axisZ.Normalize();
 
     this->axisY = up - (axisZ * ( (up.DotProduct(axisZ) )/axisZ.DotProduct(axisZ) ) );
+    this->axisY.Normalize();
 
     this->axisX = axisY.CrossProduct(axisZ);
-
     this->axisX.Normalize();
-    this->axisY.Normalize();
+
 
     camToWorld.m[0][0] = axisX.x; 
     camToWorld.m[0][1] = axisX.y; 
@@ -55,7 +55,7 @@ Ray Camera::GetRay(double x, double y)
 
     float invWidth = 1 / float(canvas->width), invHeight = 1 / float(canvas->height); 
     float aspectratio = canvas->width / float(canvas->height); 
-    float angle = tan(M_PI * 0.5 * this->fov / 180.);
+    float angle = tan(M_PI * 0.5 * this->fov / 180);
 
     float Px = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio; 
     float Py = (1 - 2 * ((y + 0.5) * invHeight)) * angle; 
@@ -63,7 +63,7 @@ Ray Camera::GetRay(double x, double y)
     Vector3d rayOrigin(0);
     camToWorld.multVecMatrix(Vector3d(0), rayOrigin);
     Vector3d dir;
-    camToWorld.multVecMatrix(Vector3d(Px, Py, -1), dir);
+    camToWorld.multDirMatrix(Vector3d(Px, Py, -1), dir);
     dir.Normalize();
     return Ray(rayOrigin, dir);
 }
