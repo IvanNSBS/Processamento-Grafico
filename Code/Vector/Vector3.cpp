@@ -1,6 +1,10 @@
 #pragma once
 
 #include <math.h>
+#include <cstdlib> 
+#include <cstdio> 
+#include <iostream> 
+#include <iomanip>
 using namespace std;
 
 template<typename K> 
@@ -62,14 +66,16 @@ public:
     Vector3<K> operator * (const Vector3<K> &v) const 
     { return Vector3<K>(x * v.x, y * v.y, z * v.z); } 
 
-
     Vector3<K>& operator += (const Vector3<K> &v) 
-    { x += v.x, y += v.y, z += v.z; return *this; } 
-    /*friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
+    { x += v.x, y += v.y, z += v.z; return *this; }
+
+    const K& operator [] (uint8_t i) const { return (&x)[i]; } 
+    K& operator [] (uint8_t i) { return (&x)[i]; }  
+    friend std::ostream& operator << (ostream& os, const Vector3<K>& vt)  
     {  
         os << "( " << vt.x << " , " << vt.y << " , " << vt.z << " )" << endl;  
         return os;  
-    }*/ 
+    }
 }; 
 
 typedef Vector3<float> Vector3f;

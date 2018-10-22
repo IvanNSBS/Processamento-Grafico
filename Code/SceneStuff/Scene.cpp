@@ -92,43 +92,52 @@ void Scene::add(Object* object)
 void Scene::render() 
 {   
     unsigned width =  640, height = 480; 
-    Vector3d *image = new Vector3d[width * height], *pixel = image; 
+
     float invWidth = 1 / float(width), invHeight = 1 / float(height); 
     float fov = 60, aspectratio = width / float(height); 
-    float angle = tan(M_PI * 0.5 * fov / 180.); 
+    float angle = tan(M_PI * 0.5 * fov / 180.);
+
+    //camera->LookAt(Vector3d(-0.20, 0, 0), Vector3d(0, 0, 1));
+    for(int i = 0; i < 4; i++)
+    {
+        for(int j = 0; j < 4; j++)
+        {
+            printf("camToWorld[%d][%d]: %f\n", i, j, camera->camToWorld[i][j]);
+        }
+    }
     // Trace rays
     for (unsigned y = 0; y < height; ++y)
     { 
-        for (unsigned x = 0; x < width; ++x, ++pixel)
+        for (unsigned x = 0; x < width; ++x)
         { 
             float xx = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio; 
             float yy = (1 - 2 * ((y + 0.5) * invHeight)) * angle; 
-            Vector3d raydir(xx, yy, -1); 
+
+            /*Vector3d raydir(xx, yy, -1); 
+            //printf("(%f, %f, %f)\n", raydir.x, raydir.y, raydir.z);
             raydir.Normalize();
-            Ray ray = Ray(Vector3d(0), raydir);
-            //*pixel = trace(ray); 
+            Ray ray = Ray(Vector3d(0), raydir);*/
+
+            Vector3d rayOrigin(0);
+            camera->camToWorld.multVecMatrix(Vector3d(0), rayOrigin);
+            Vector3d dir;
+            camera->camToWorld.multVecMatrix(Vector3d(xx, yy, -1), dir);
+            dir.Normalize();
+            Ray ray = Ray(rayOrigin, dir);
+ 
             this->renderedImage->SetPixel(x,y,trace(ray)); 
         } 
     }  
     this->renderedImage->SaveAsPBM();
-    // Save result to a PPM image (keep these flags if you compile under Windows)
-    /*std::ofstream ofs("./untitled.ppm", std::ios::out | std::ios::binary); 
-    ofs << "P6\n" << width << " " << height << "\n255\n"; 
-    for (unsigned i = 0; i < width * height; ++i)
-    { 
-        ofs << (unsigned char)(std::min(double(1), (double)image[i].x) * 255) << 
-               (unsigned char)(std::min(double(1), (double)image[i].y) * 255) << 
-               (unsigned char)(std::min(double(1), (double)image[i].z) * 255); 
-    }
-    ofs.close(); 
-    delete [] image; */
 } 
 
 int main(int argc, char **argv) 
 { 
     //srand48(13); 
     std::vector<Object*> spheres; 
-    Scene *scene = new Scene(640, 480);
+    Image *im = new Image(640, 480);
+    Camera *cam = new Camera( Vector3d(0, 0.9, -0.50), Vector3d(0, 0.5, 0.1), Vector3d(0,1,0), 60, 1 );
+    Scene *scene = new Scene(im, cam);
     // position, radius, surface color, reflectivity, transparency, emission color
     scene->objects.push_back(new Object(Vector3d( 0.0, -40004, -20), 40000, new Material(Vector3d(0.20, 0.20, 0.20))) ); 
     scene->objects.push_back(new Object(Vector3d( 0.0,      0, -20),     4, new Material(Vector3d(1.00, 0.32, 0.36))) ); 
