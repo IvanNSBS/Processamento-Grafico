@@ -50,6 +50,8 @@
         "functional": "cpp",
         "iomanip": "cpp",
         "numeric": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "xlocmon": "cpp",
+        "xloctime": "cpp"
     }
 }

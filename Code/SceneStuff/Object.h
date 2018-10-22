@@ -11,18 +11,41 @@ struct Material
 {
 public:
     Vector3d surfaceColor, emissionColor;
-    float Kd; // Diffuse Factor
-    float Ks; // Specular Factor
-    float alpha; // Coeficiente de rugosidade 
-
+    Vector3d Kd, Ks; //Diffuse Factor, Specular Factor 
+    double alpha;
     //float transparency, reflection;
 
     //Material(): surfaceColor(0), emissionColor(0){}
     //Material(Vector3d sc):surfaceColor(sc), emissionColor(0) {}
-    Material(const Vector3d &sc = 0, const Vector3d &ec = 0):surfaceColor(sc), emissionColor(ec) {}
-    Material(const float &d = 1, const float &e = 1, const float &a = 1, 
-             const Vector3d &sc = 0, const Vector3d &ec = 0):surfaceColor(sc), emissionColor(ec), Kd(d), Ks(e), alpha(a) {}
+
+    //for light source
+    Material(const Vector3d & ec): emissionColor(ec){}
+
+    Material(const Vector3d &sc, const Vector3d &ec):surfaceColor(sc), emissionColor(ec), Kd(1), Ks(1), alpha(1) {}
+
+    Material(const Vector3d &sc, const Vector3d &d, 
+             const Vector3d &s, const double &a):surfaceColor(sc), Kd(d), Ks(s), alpha(a) {}
 };
+
+static Material *Brass = new Material( 
+                             Vector3d(0.329412, 0.223529, 0.027451), 
+                             Vector3d(0.780392, 0.568627, 0.113725),
+                             Vector3d(0.992157, 0.941176, 0.807843), 27.8974);
+
+static Material *Bronze = new Material( 
+                             Vector3d(0.2125, 0.1275, 0.054), 
+                             Vector3d(0.714, 0.4284, 0.18144), 
+                             Vector3d(0.393548, 0.271906, 0.166721), 25.6);
+
+static Material *Chrome = new Material(Vector3d(0.25), Vector3d(0.4), Vector3d(0.774597), 76.8);
+
+static Material *PolishedGold = new Material( 
+                             Vector3d(0.24725, 0.2245, 0.0645), 
+                             Vector3d(0.34615, 0.3143, 0.0903),
+                             Vector3d(0.797357, 0.723991, 0.208006), 83.2);
+
+static Material *Silver = new Material( Vector3d(0.19225), Vector3d(1), Vector3d(0), 0);
+
 
 class Object {
 public:

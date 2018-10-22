@@ -4,7 +4,7 @@
 
 //#include <cstdlib> 
 //#include <cstdio> 
-//#include <cmath> 
+#include <cmath> 
 //#include <fstream> 
 //#include <vector> 
 //#include <iostream> 
@@ -73,18 +73,25 @@ Vector3d Scene::trace(const Ray& r)
                     //cout << "ok" << endl;
                     if (objects[j]->intersect(n, t0, t1) )
                     {  
-                        transmission = sphere->material->surfaceColor * 0.2; 
+                        transmission = sphere->material->surfaceColor * 0.85; 
                         break; 
                     } 
                 } 
             }
-            //Difuso
-            surfaceColor = sphere->material->surfaceColor * transmission * 
-            std::max(double(0), nhit.DotProduct(lightDirection)) * objects[i]->material->emissionColor * sphere->material->Kd 
-            + (objects[i]->material->emissionColor * sphere->material->Ks * (r.getDirection()*-1).CrossProduct(lightDirection))  ; 
+            //vetor da reflexao da luz com a superficie
+            Vector3d R = (nhit * (2*lightDirection.DotProduct(nhit))) - lightDirection;
+
+            Vector3d diffuse = transmission * 
+            sphere->material->surfaceColor * objects[i]->material->emissionColor * 
+            std::max(double(0), nhit.DotProduct(lightDirection));
+
+            Vector3d specular = transmission * objects[i]->material->emissionColor * 
+            pow(std::max(double(0), R.DotProduct(r.getDirection()*-1)), sphere->material->alpha);
+             
+            surfaceColor = (diffuse * sphere->material->Kd) + (specular * sphere->material->Ks);
         } 
     } 
-    return surfaceColor + sphere->material->emissionColor;  
+    return surfaceColor;  
 }
 
 void Scene::add(Object* object)
@@ -100,32 +107,32 @@ void Scene::RenderScene()
             this->camera->canvas->SetPixel( x, y, trace( camera->GetRay(x,y) ) ); 
     
     //Salva o ppm como RenderedCanvas na pasta RenderedImages
-    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvasBugged");
+    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas1");
 } 
 
 int main(int argc, char **argv) 
 { 
     //Para compilar: g++ -o r -std=c++14 Scene.cpp Object.cpp Ray.cpp Camera.cpp Image.cpp
     std::vector<Object*> spheres; 
-    Image *im = new Image(640, 480);
+    Image *im = new Image(1360, 720);
+    
+    //camera nao bugada para testes
+    //Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 60, 1 );
 
     //camera bugada
-    Camera *cam = new Camera( im, Vector3d(0, 15, -7), Vector3d(0, 5, 1), Vector3d(0,1,0), 90, 1 );
-
-    //camera nao bugada para testes
-    //Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 90, 1 );
+    Camera *cam = new Camera( im, Vector3d(0, 15, -16.7), Vector3d(0, 5, 1), Vector3d(0,1,0), 60, 1 );
 
 
     Scene *scene = new Scene(cam);
 
     // position, radius, surface color, reflectivity, transparency, emission color
-    scene->add(new Object(Vector3d( 0.0, -40004, -20), 40000, new Material(1.0, 1.0, 0.6, Vector3d(0.20, 0.20, 0.20) )) ); 
-    scene->add(new Object(Vector3d( 0.0,      0, -20),     4, new Material(1.0, 1.0, 0.6, Vector3d(1.00, 0.32, 0.36))) ); 
-    scene->add(new Object(Vector3d( 5.0,     -1, -15),     2, new Material(1.0, 1.0, 0.6, Vector3d(0.90, 0.76, 0.46))) ); 
-    scene->add(new Object(Vector3d( 5.0,      0, -25),     3, new Material(1.0, 1.0, 0.6, Vector3d(0.65, 0.77, 0.97))) ); 
-    scene->add(new Object(Vector3d(-5.5,      0, -15),     3, new Material(1.0, 1.0, 0.6, Vector3d(0.90, 0.90, 0.90))) ); 
+    scene->add(new Object(Vector3d( 0.0, -40004, -20), 40000, Silver)); 
+    scene->add(new Object(Vector3d( 0.0,      0, -20),     4, Brass)); 
+    scene->add(new Object(Vector3d( 5.0,     -1, -15),     2, Chrome)); 
+    scene->add(new Object(Vector3d( 5.0,      0, -25),     3, PolishedGold)); 
+    scene->add(new Object(Vector3d(-5.5,      0, -15),     3, Bronze)); 
     // light
-    scene->add(new Object(Vector3d( 0.0,     70, -30),     0, new Material(Vector3d(0.00, 0.00, 0.00), Vector3d(2.5))) ); 
+    scene->add(new Object(Vector3d( 0.0,     70, -30),     0, new Material(Vector3d(4)))); 
     scene->RenderScene(); 
     
     return 0; 
