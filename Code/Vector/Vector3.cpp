@@ -18,6 +18,7 @@ public:
     Vector3(K xx, K yy, K zz) : x(xx), y(yy), z(zz) {} 
 
     K Length() { return sqrt(x * x + y * y + z * z); } 
+    K Length_Squared() { return x * x + y * y + z * z; } 
 
     Vector3<K>& Normalize() 
     { 
@@ -68,6 +69,18 @@ public:
 
     Vector3<K>& operator += (const Vector3<K> &v) 
     { x += v.x, y += v.y, z += v.z; return *this; }
+
+    Vector3<K>& operator *= (const Vector3<K> &v) 
+    { x *= v.x, y *= v.y, z *= v.z; return *this; }
+
+    Vector3<K> operator *= (const K &r) const 
+    { return Vector3<K>(x *= r, y *= r, z *= r); }
+
+    Vector3<K>& operator /= (const Vector3<K> &v) 
+    { x /= v.x, y /= v.y, z /= v.z; return *this; }
+
+    Vector3<K> operator /= (const K &r) const 
+    { return Vector3<K>(x /= r, y /= r, z /= r); }
 
     const K& operator [] (uint8_t i) const { return (&x)[i]; } 
     K& operator [] (uint8_t i) { return (&x)[i]; }  

@@ -64,7 +64,8 @@ public:
     Retorna true se r intersecta a cena e falso caso contrario
     Guarda possiveis informacoes sobre a interseccao em info, caso seja provido 
     */
-
     bool intersect(const Ray& r, double &t0, double &t1);
+    
+    Vector3d random_in_unit_sphere();
     Vector3d getPoint() const;
 };

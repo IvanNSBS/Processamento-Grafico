@@ -8,7 +8,7 @@
 Vector3d Scene::trace(const Ray& r) 
 {
     float tnear = INFINITY; 
-    const Object* sphere = NULL;
+    Object* sphere = NULL;
     // Encontra a intersecao do ray com a esfera mais 'anterior' ao raio(que o raio atingiu primeiro)
     for (unsigned i = 0; i < objects.size(); ++i)
     { 
@@ -37,6 +37,14 @@ Vector3d Scene::trace(const Ray& r)
     // reverse the normal direction. That also means we are inside the sphere so set
     // the inside bool to true. Finally reverse the sign of IdotN which we want
     // positive.
+
+    //difuso bounce hit
+    /*if(sphere){
+        Vector3d target = phit + nhit + sphere->random_in_unit_sphere();
+        std::cout << "still here\n";
+        surfaceColor = sphere->material->surfaceColor * trace(Ray(phit, target-phit));
+    }*/
+
     float bias = 1e-4; // add some bias to the point from which we will be tracing 
     //bool inside = false; 
     if (r.getDirection().DotProduct(nhit) > 0) 
@@ -44,7 +52,7 @@ Vector3d Scene::trace(const Ray& r)
         nhit = nhit * -1;
         //inside = true;
     } 
- 
+
     //Eh difuso
     for (unsigned i = 0; i < objects.size(); ++i) 
     { 
@@ -71,11 +79,11 @@ Vector3d Scene::trace(const Ray& r)
             //vetor da reflexao da luz com a superficie
             Vector3d R = (nhit * (2*lightDirection.DotProduct(nhit))) - lightDirection;
 
-            Vector3d diffuse = transmission * 
+            Vector3d diffuse =  
             sphere->material->surfaceColor * objects[i]->material->emissionColor * 
             std::max(double(0), nhit.DotProduct(lightDirection));
 
-            Vector3d specular = transmission * objects[i]->material->emissionColor * 
+            Vector3d specular =  objects[i]->material->emissionColor * 
             pow(std::max(double(0), R.DotProduct(r.getDirection()*-1)), sphere->material->alpha);
              
             surfaceColor = (diffuse * sphere->material->Kd) + (specular * sphere->material->Ks);
@@ -94,17 +102,27 @@ void Scene::RenderScene()
     // Trace rays
     for (unsigned y = 0; y < camera->canvas->height; ++y)
         for (unsigned x = 0; x < camera->canvas->width; ++x)
-            this->camera->canvas->SetPixel( x, y, trace( camera->GetRay(x,y) ) ); 
+        {
+            Vector3d col = 0;
+            for(int i = 0; i < 100; i++)
+            {
+                double ra = ((double) rand() / (RAND_MAX));
+                col = col + trace( camera->GetRay( x + ra , y + ra ) );
+            }
+            double ns = double(100);
+            col = Vector3d (col.x/ns, col.y/ns, col.z/ns);
+            this->camera->canvas->SetPixel( x, y, col ); 
+        }
     
     //Salva o ppm como RenderedCanvas na pasta RenderedImages
-    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas2");
+    this->camera->canvas->SaveAsPBM("../RenderedImages/", "RenderedCanvas3");
 } 
 
 int main(int argc, char **argv) 
 { 
     //Para compilar: g++ -o r -std=c++14 Scene.cpp Object.cpp Ray.cpp Camera.cpp Image.cpp
     std::vector<Object*> spheres; 
-    Image *im = new Image(1360, 720);
+    Image *im = new Image(320, 240);
     
     //camera nao bugada para testes
     Camera *cam = new Camera( im, Vector3d(0, 0, 0), Vector3d(0, 0, 0.1), Vector3d(0,1,0), 60, 1 );
