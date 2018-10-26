@@ -57,8 +57,8 @@ Ray Camera::GetRay(double x, double y)
     float aspectratio = canvas->width / float(canvas->height); 
     float angle = tan(M_PI * 0.5 * this->fov / 180);
 
-    float Px = (2 * ((x + 0.5) * invWidth) - 1) * angle * aspectratio; 
-    float Py = (1 - 2 * ((y + 0.5) * invHeight)) * angle; 
+    float Px = (2 * ((x) * invWidth) - 1) * angle * aspectratio; 
+    float Py = (1 - 2 * ((y) * invHeight)) * angle; 
 
     Vector3d rayOrigin(0);
     camToWorld.multVecMatrix(Vector3d(0), rayOrigin);

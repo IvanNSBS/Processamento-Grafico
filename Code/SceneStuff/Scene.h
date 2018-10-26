@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef SCENEH
+#define SCENEH
+
 #include "Object.h"
 #include "Ray.h"
 #include "../Vector/Vector3.cpp"
@@ -18,10 +21,12 @@ public:
     Scene(Camera* cam): objects(), camera(cam){}
 
     //Implementa o modelo de iluminacao escolhido, retornando uma cor
-    Vector3d trace(const Ray& r);
+    Vector3d trace(const Ray& r, int depth);
 
     //render
     void RenderScene();
     //Adiciona um objeto a cena
     void add(Object* object);
 };
+
+#endif 

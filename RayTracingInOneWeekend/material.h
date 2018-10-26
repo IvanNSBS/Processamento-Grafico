@@ -23,7 +23,7 @@ vec3 random_in_unit_sphere() {
 class material{
     public:
         virtual bool scatter(const ray &r_in, const hit_record &rec, vec3 &attenuation, ray &scattered) const = 0;
-};
+    };
 
 class lambertian : public material {
     public:
