@@ -11,8 +11,8 @@
 
 class Scene {
 public:
-    //Object *light;
     std::vector<Object*> objects;
+    std::vector<Object*> lights;
     Camera *camera;
 
 public:

@@ -1,11 +1,7 @@
 #include "Object.h"
+#include <cmath>
 #include <stdlib.h>
 #include <iostream>
-
-//Calcula o vetor apos a reflexao com a superficie
-Vector3d reflect( Vector3d &v, const Vector3d& n) {
-     return v - (n * (2*v.DotProduct(n)));
-}
 
 //Calcula uma direcao aleatoria dentro de uma esfera
 Vector3d random_in_unit_sphere() {

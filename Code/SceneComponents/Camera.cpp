@@ -2,6 +2,20 @@
 
 #define M_PI 3.141592653589793
 
+double random()
+{
+    return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+}
+
+Vector3d Rand_In_Disk()
+{
+    Vector3d p;
+    do{
+        
+        p = (Vector3d(random(), random(), 0) * 2) - Vector3d(1.0, 1.0, 0.0);
+    }while(p.DotProduct(p) >= 1.0);
+}
+
 Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, double near)
 {
     this->position = position;
@@ -64,7 +78,7 @@ Ray Camera::GetRay(double x, double y)
     float invWidth = 1 / float(canvas->width), invHeight = 1 / float(canvas->height); 
     float aspectratio = canvas->width / float(canvas->height); 
     //Angulo de abertura da camera
-    float angle = tan(M_PI * 0.5 * this->fov / 180) * near; //Multiplica pelo near (zoom)
+    float angle = tan((this->fov * 0.5) * (M_PI / 180) * near) ; //Multiplica pelo near (zoom)
 
     //Converte o ponto x do canvas para raster space
     //Multiplica pelo aspectratio, pois o canvas pode nao ser quadrado e gerar distorcao
@@ -79,5 +93,8 @@ Ray Camera::GetRay(double x, double y)
     //Nao se usa multVecMatrix, pois nao se pode aplicar translacao nela (?)
     camToWorld.multDirMatrix(Vector3d(Px, Py, -1), dir);
     dir.Normalize(); //Toda direcao deve ser normalizada
+    Vector3d rd = Rand_In_Disk()*6;
+
+    Vector3d offset = axisY*rd.x + axisX*rd.y;
     return Ray(rayOrigin, dir);
 }

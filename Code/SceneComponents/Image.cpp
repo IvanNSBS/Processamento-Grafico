@@ -1,4 +1,3 @@
-#pragma once
 
 #include "Image.h"
 #include <fstream>
@@ -28,9 +27,9 @@ void Image::SaveAsPBM(const std::string &filepath, const std::string &filename)
     ofs << "P6\n" << width << " " << height << "\n255\n"; 
     for (unsigned i = 0; i < width * height; ++i)
     { 
-        ofs << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255) << 
-               (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255) << 
-               (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255); 
+        ofs << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255.0) << 
+               (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255.0) << 
+               (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255.0); 
     }
     ofs.close();
 }

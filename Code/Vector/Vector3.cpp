@@ -91,5 +91,13 @@ public:
     }
 }; 
 
+template <typename K>
+inline Vector3<K> operator * (K r, Vector3<K> &v) 
+{ return Vector3<K>(v.x * r, v.y * r, v.z*r); }
+
+template <typename K>
+inline Vector3<K> operator * (Vector3<K> &v, K r) 
+{ return Vector3<K>(v.x * r, v.y * r, v.z*r); }
+
 typedef Vector3<float> Vector3f;
 typedef Vector3<double> Vector3d;
