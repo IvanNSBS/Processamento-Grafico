@@ -64,6 +64,9 @@ public:
     Vector3<K> operator * (const K &r) const 
     { return Vector3<K>(x * r, y * r, z * r); } 
 
+    Vector3<K> operator / (const K &r) const 
+    { return Vector3<K>(x / r, y / r, z / r); } 
+
     Vector3<K> operator * (const Vector3<K> &v) const 
     { return Vector3<K>(x * v.x, y * v.y, z * v.z); } 
 

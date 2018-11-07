@@ -78,23 +78,28 @@ Ray Camera::GetRay(double x, double y)
     float invWidth = 1 / float(canvas->width), invHeight = 1 / float(canvas->height); 
     float aspectratio = canvas->width / float(canvas->height); 
     //Angulo de abertura da camera
-    float angle = tan((this->fov * 0.5) * (M_PI / 180) * near) ; //Multiplica pelo near (zoom)
+    float angle = tan((this->fov * 0.5) * (M_PI / 180)) * near ; //Multiplica pelo near (zoom)
 
     //Converte o ponto x do canvas para raster space
     //Multiplica pelo aspectratio, pois o canvas pode nao ser quadrado e gerar distorcao
-    float Px = (2 * ((x) * invWidth) - 1) * angle * aspectratio; 
-    float Py = (1 - 2 * ((y) * invHeight)) * angle; 
+    float Px = (2 * ( (x) * invWidth) - 1) * angle * aspectratio; 
+    float Py = (1 - 2 * ( (y) * invHeight)) * angle; 
+
+    Vector3d rd = Rand_In_Disk()*0.1;
+    Vector3d offset = axisX*rd.x + axisY*rd.y;
 
     //Aplica-se a matriz de transformacao camToWorld em rayOrigin
     //pois a camera pode nao estar na origem e nem com seus eixos padrao
     Vector3d rayOrigin(0);
-    camToWorld.multVecMatrix(Vector3d(0), rayOrigin);
-    Vector3d dir;
-    //Nao se usa multVecMatrix, pois nao se pode aplicar translacao nela (?)
-    camToWorld.multDirMatrix(Vector3d(Px, Py, -1), dir);
-    dir.Normalize(); //Toda direcao deve ser normalizada
-    Vector3d rd = Rand_In_Disk()*6;
+    camToWorld.multVecMatrix(0, rayOrigin);
 
-    Vector3d offset = axisY*rd.x + axisX*rd.y;
-    return Ray(rayOrigin, dir);
+    //Nao se usa multVecMatrix, pois direçao nao possui posiçao
+    Vector3d dir;
+    camToWorld.multDirMatrix(Vector3d(Px,Py, -1), dir);
+    dir.Normalize();
+    //rayOrigin = rayOrigin + offset;
+    //dir = (dir - offset).Normalize();
+    //dir.Normalize(); //Toda direcao deve ser normalizada
+
+    return Ray(rayOrigin,dir);
 }
