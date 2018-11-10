@@ -52,9 +52,9 @@ Vector3d Scene::trace(const Ray& r, int depth)
     //Se nao tem intersecao retorna background color
     if (!sphere)
     {
-        Vector3d unit_direction = r.getDirection().Normalize();
+        Vector3d unit_direction = r.getDirection();
         double t = 0.5 * (unit_direction.y + 1.0);
-        return (Vector3d(0.65, 0.85, 1.0) * (1.0 - t) ) + Vector3d(0.5, 0.7, 1.0)*t;
+        return (Vector3d(1.0, 1.0, 1.0) * (1.0 - t) ) + (Vector3d(0.5, 0.7, 1.0)*t);
     }
     
     if(depth > MAX_RAY_DEPTH)
@@ -88,7 +88,7 @@ Vector3d Scene::trace(const Ray& r, int depth)
                         if (i != j)
                         { 
                             double t0, t1;
-                            Ray n = Ray((phit+ random_in_unit_sphere()) + nhit * bias, lightDirection);
+                            Ray n = Ray((phit+ random_in_unit_sphere()*objects[j]->radius) + nhit * bias, lightDirection);
                             if (objects[j]->intersect(n, t0, t1) )
                             {  
                                 double dist = t0 > t1 ? t1 : t0;

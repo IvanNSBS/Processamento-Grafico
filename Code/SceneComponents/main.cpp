@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     Scene *scene = new Scene(cam);
 
     //Posicao, raio, material
-    /*scene->add(new Object(Vector3d( 0.0,   -1004, -20),   1000, Silver)); 
+    scene->add(new Object(Vector3d( 0.0,   -1004, -20),   1000, Silver)); 
     scene->add(new Object(Vector3d(  -1,      0, -20),     4, Lamb)); 
     scene->add(new Object(Vector3d(  -9,      0, -20),     4, Chrome));
     scene->add(new Object(Vector3d(   7,      0, -20),     4, PolishedGold)); 
@@ -22,9 +22,9 @@ int main(int argc, char **argv)
     scene->add(new Object(Vector3d( 3.7,     -1, -12.5),   2, Di2)); 
     //luz da cena
     scene->add(new Object(Vector3d( 0.0,     70, -30),     0, new Light(Vector3d(1.2)))); 
-    scene->add(new Object(Vector3d( -1.0,     9, -18),     2, new Light(Vector3d(1.5)))); */
+    scene->add(new Object(Vector3d( -1.0,     9, -18),     2, new Light(Vector3d(1.5))));
 
-    scene->add(new Object(Vector3d( 0.0,   -504, -20),   500, Silver)); 
+    /*scene->add(new Object(Vector3d( 0.0,   -504, -20),   500, Silver)); 
     scene->add(new Object(Vector3d(  -2.5,      -1.1, -27),     3.5, Lamb)); 
     scene->add(new Object(Vector3d(   0,        -1.1, -21),     3.5, Di2)); 
     scene->add(new Object(Vector3d(   2.5,      -1.1, -15),     3.5, BasicConductor)); 
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
 
 
-    scene->add(new Object(Vector3d( 0.0,     70, -30),     0, new Light(Vector3d(1.5)))); 
+    scene->add(new Object(Vector3d( 0.0,     70, -30),     2, new Light(Vector3d(1.5))));*/ 
 
     scene->RenderScene(); 
     
