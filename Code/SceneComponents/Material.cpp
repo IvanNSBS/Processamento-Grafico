@@ -49,3 +49,23 @@ Vector3d refract(Vector3d &I, const Vector3d &N, const double &ior) {
     double k = 1 - eta * eta * (1 - cosi * cosi); 
     return k < 0 ? 0 : (I*eta) + (n*(eta * cosi - sqrt(k))); 
 }
+
+void createCoordinateSystem(const Vector3d &N, Vector3d &Nt, Vector3d &Nb) 
+{ 
+    if (std::fabs(N.x) > std::fabs(N.y)) 
+        Nt = Vector3d(N.z, 0, -N.x) / sqrtf(N.x * N.x + N.z * N.z); 
+    else 
+        Nt = Vector3d(0, -N.z, N.y) / sqrtf(N.y * N.y + N.z * N.z); 
+    Nb = N.CrossProduct(Nt); 
+} 
+ 
+Vector3d uniformSampleHemisphere(const float &r1, const float &r2) 
+{ 
+    // cos(theta) = u1 = y
+    // cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
+    float sinTheta = sqrtf(1 - r1 * r1); 
+    float phi = 2 * 3.14 * r2; 
+    float x = sinTheta * cosf(phi); 
+    float z = sinTheta * sinf(phi); 
+    return Vector3d(x, r1, z); 
+} 

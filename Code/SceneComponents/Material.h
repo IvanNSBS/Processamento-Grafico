@@ -3,6 +3,7 @@
 
 #include "../Vector/Vector3.cpp"
 #include "Ray.h"
+#include <random>
 #include <iostream>
 
 Vector3d random_in_unit_sphere();
@@ -17,7 +18,14 @@ Vector3d refract(Vector3d &I, const Vector3d &N, const double &ior);
 
 void fresnel(Vector3d &I, const Vector3d &N, const float &ior, float &kr);
 
+void createCoordinateSystem(const Vector3d &N, Vector3d &Nt, Vector3d &Nb);
+
+Vector3d uniformSampleHemisphere(const float &r1, const float &r2);
+
 enum mat_type{ lambertian, conductor, dielectric };
+
+//std::default_random_engine mgenerator; 
+//std::uniform_real_distribution<float> mdistributor(0, 1); 
 
 struct ScatterInfo
 {
@@ -51,6 +59,7 @@ public:
 
 };
 
+
 class Diffuse : public Material {
 public:
     using Material::Material;
@@ -63,12 +72,31 @@ public:
     //baseada no local de impacto do raio incidente
     virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
     {return false;}
+
     virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
         Vector3d target = phit + nhit + random_in_unit_sphere();
         scattered = Ray(phit, target-phit);
         attenuation = albedo;
         return true;
     }
+    
+    /*virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
+        float bias = 1e-4;
+        Vector3d Nt, Nb; 
+        createCoordinateSystem(nhit, Nt, Nb); 
+        //float pdf = 1 / (2 * M_PI); 
+        float r1 = mdistributor(mgenerator); 
+        float r2 = mdistributor(mgenerator); 
+        Vector3d sample = uniformSampleHemisphere(r1, r2); 
+        Vector3d sampleWorld( 
+                sample.x * Nb.x + sample.y * nhit.x + sample.z * Nt.x, 
+                sample.x * Nb.y + sample.y * nhit.y + sample.z * Nt.y, 
+                sample.x * Nb.z + sample.y * nhit.z + sample.z * Nt.z); 
+        // don't forget to divide by PDF and multiply by cos(theta)
+        scattered = Ray(nhit + sampleWorld * bias, sampleWorld); 
+        return true;
+    }*/
+    
 
     Vector3d albedo = Vector3d(0);
 };
@@ -167,9 +195,12 @@ static Material *PolishedGold = new Conductor(
 static Material *Silver = new Diffuse( Vector3d(0.19225), Vector3d(1), Vector3d(0), 0);
 
 static Material *Lamb = new Diffuse(Vector3d(0.8, 0.3, 0.3), Vector3d(0.8, 0.3, 0.3), Vector3d(0), 1);
+static Material *Red = new Diffuse(Vector3d(0.65, 0.03, 0.03), Vector3d(0.65, 0.03, 0.03), Vector3d(0), 1);
+static Material *Green = new Diffuse(Vector3d(0.12, 0.45, 0.15), Vector3d(0.12, 0.45, 0.15), Vector3d(0), 1);
+static Material *White = new Diffuse(Vector3d(0.73, 0.73, 0.73), Vector3d(0.73, 0.73, 0.73), Vector3d(0), 1);
 static Material *BasicConductor = new Conductor(Vector3d(0.8), Vector3d(0.8), Vector3d(0.9), 76.8, 0.03);
 static Material *Basic2 = new Conductor( Vector3d(0.8, 0.6, 0.2), Vector3d(0.8,0.6,0.2), Vector3d(0.8,0.6,0.2), 30.8, 0.2);
 static Material *Di = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 2.417);
-static Material *Di2 = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 1.9);
+static Material *Di2 = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 1.5);
 
 #endif

@@ -19,7 +19,7 @@ double drand48()
 }
 
 //Calcula os dois pontos em que um raio intersecta uma esfera
-bool Object::intersect(const Ray& r, double &t0, double &t1)
+bool Sphere::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
 {
     Vector3d nhit = this->center - r.getOrigin(); 
     float tca = nhit.DotProduct(r.getDirection()); 
@@ -35,10 +35,29 @@ bool Object::intersect(const Ray& r, double &t0, double &t1)
     t0 = tca - thc; 
     t1 = tca + thc;
 
+    float tnear = t0 < t1 ? t0 : t1;
+    rec.t = tnear;
+    rec.phit = r.getOrigin() + r.getDirection() * tnear;
+    rec.nhit = rec.phit - center;
+    rec.nhit.Normalize();
+    rec.mat = this->material;
     return true; 
 }
 
-Vector3d Object::getPoint() const
+bool XZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
 {
-    return Vector3d(0);
+    float tnear = (k-r.getOrigin().y) / r.getDirection().y;
+    //if(tnear < tmin || tnear > tmax)
+    //    return false;
+    float x = r.getOrigin().x + r.getDirection().x * tnear;
+    float y = r.getOrigin().y + r.getDirection().y * tnear;
+    if(x < x0 || x > x1 || y < y0 || y > y1)
+        return false;
+
+    t0 = t1 = tnear;
+    rec.t = tnear;
+    rec.mat = this->material;
+    rec.phit = r.getOrigin() + r.getDirection()*tnear;
+    rec.nhit = Vector3d(0, -1, 0); 
+    return true; 
 }

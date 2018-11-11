@@ -104,7 +104,7 @@ Ray Camera::GetRay(double x, double y)
 
 
     //teste
-    double theta = fov*M_PI/180;
+    /*double theta = fov*M_PI/180;
     double half_height = tan(theta*0.5);
     double half_width = aspectratio * half_height;
     Vector3d Origin(0);
@@ -112,5 +112,6 @@ Ray Camera::GetRay(double x, double y)
     Vector3d horizontal = axisY*half_width*14*2;
     Vector3d vertical = axisX*half_height*14*2;
 
-    return Ray(Origin + offset, Point + horizontal*x + vertical*y - Origin - offset);
+    return Ray(Origin + offset, Point + horizontal*x + vertical*y - Origin - offset);*/
+    return Ray(rayOrigin, dir);
 }
