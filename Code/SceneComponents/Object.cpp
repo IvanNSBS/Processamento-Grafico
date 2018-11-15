@@ -2,13 +2,16 @@
 #include <cmath>
 #include <stdlib.h>
 #include <iostream>
+#include <random>
 
+std::default_random_engine generator; 
+std::uniform_real_distribution<float> distributor(0, 1);
 //Calcula uma direcao aleatoria dentro de uma esfera
 Vector3d random_in_unit_sphere() {
     Vector3d p;
     do {
-        double drand48 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-        p = (Vector3d(drand48, drand48, drand48) * 2.0 )- Vector3d(1,1,1);
+        double drand49 = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+        p = ( Vector3d( distributor(generator), distributor(generator), distributor(generator) ) * 2.0 )- Vector3d(1,1,1);
     } while (p.Length_Squared() >= 1.0);
     return p;
 }
@@ -35,7 +38,11 @@ bool Sphere::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) con
     t0 = tca - thc; 
     t1 = tca + thc;
 
-    float tnear = t0 < t1 ? t0 : t1;
+    float tnear;
+    if(t0 < 0)
+        tnear = t1;
+    else
+        tnear = t0 < t1 ? t0 : t1;
     rec.t = tnear;
     rec.phit = r.getOrigin() + r.getDirection() * tnear;
     rec.nhit = rec.phit - center;
@@ -50,7 +57,7 @@ bool XZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) co
     //if(tnear < tmin || tnear > tmax)
     //    return false;
     float x = r.getOrigin().x + r.getDirection().x * tnear;
-    float y = r.getOrigin().y + r.getDirection().y * tnear;
+    float y = r.getOrigin().z + r.getDirection().z * tnear;
     if(x < x0 || x > x1 || y < y0 || y > y1)
         return false;
 
@@ -58,6 +65,6 @@ bool XZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) co
     rec.t = tnear;
     rec.mat = this->material;
     rec.phit = r.getOrigin() + r.getDirection()*tnear;
-    rec.nhit = Vector3d(0, -1, 0); 
+    rec.nhit = Vector3d(0, 1, 0); 
     return true; 
 }

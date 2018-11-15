@@ -3,8 +3,8 @@
 
 #include "../Vector/Vector3.cpp"
 #include "Ray.h"
-#include <random>
 #include <iostream>
+#include <random>
 
 Vector3d random_in_unit_sphere();
 
@@ -18,19 +18,12 @@ Vector3d refract(Vector3d &I, const Vector3d &N, const double &ior);
 
 void fresnel(Vector3d &I, const Vector3d &N, const float &ior, float &kr);
 
-void createCoordinateSystem(const Vector3d &N, Vector3d &Nt, Vector3d &Nb);
-
-Vector3d uniformSampleHemisphere(const float &r1, const float &r2);
-
 enum mat_type{ lambertian, conductor, dielectric };
-
-//std::default_random_engine mgenerator; 
-//std::uniform_real_distribution<float> mdistributor(0, 1); 
 
 struct ScatterInfo
 {
-    Ray r1;
-    Ray r2;
+    Ray r1;//reflection
+    Ray r2;//refraction
     float ior;
     float kr;
 };
@@ -81,23 +74,25 @@ public:
     }
     
     /*virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
+        std::default_random_engine generator; 
+        std::uniform_real_distribution<float> distributor(0, 1); 
         float bias = 1e-4;
         Vector3d Nt, Nb; 
         createCoordinateSystem(nhit, Nt, Nb); 
         //float pdf = 1 / (2 * M_PI); 
-        float r1 = mdistributor(mgenerator); 
-        float r2 = mdistributor(mgenerator); 
+        float r1 = distributor(generator); 
+        float r2 = distributor(generator); 
         Vector3d sample = uniformSampleHemisphere(r1, r2); 
         Vector3d sampleWorld( 
                 sample.x * Nb.x + sample.y * nhit.x + sample.z * Nt.x, 
                 sample.x * Nb.y + sample.y * nhit.y + sample.z * Nt.y, 
                 sample.x * Nb.z + sample.y * nhit.z + sample.z * Nt.z); 
         // don't forget to divide by PDF and multiply by cos(theta)
-        scattered = Ray(nhit + sampleWorld * bias, sampleWorld); 
+        scattered = Ray(nhit + sampleWorld * bias, sampleWorld);
+        attenuation = albedo; 
         return true;
     }*/
     
-
     Vector3d albedo = Vector3d(0);
 };
 
@@ -120,7 +115,7 @@ class Conductor : public Material{
             sinfo.r2 = Ray(0,0);
             sinfo.kr = 1;
             sinfo.ior = 1;
-            return false;
+            return true;
         }
 
 
@@ -128,7 +123,6 @@ class Conductor : public Material{
             Vector3d reflected = reflect(r_in.getDirection().Normalize(), nhit);
             scattered = Ray(phit, reflected + random_in_unit_sphere()*fuzz);
             attenuation = 1;
-            return false;
             return ( scattered.getDirection().DotProduct(nhit)  > 0 );
         }
         Vector3d albedo = Vector3d(0);
@@ -146,23 +140,46 @@ class Dielectric : public Material{
         virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const  {
             float bias = 1e-4;
             Vector3d dir = r_in.getDirection();
-            Vector3d reflectionDirection = reflect(dir, nhit); 
-            Vector3d refractionDirection = refract(dir, nhit, ref_idx); 
-            Vector3d reflectionRayOrig = (reflectionDirection.DotProduct(nhit) < 0) ? 
-                phit - nhit * bias : 
-                phit + nhit * bias; 
-            Vector3d refractionRayOrig = (refractionDirection.DotProduct(nhit) < 0) ? 
-                phit - nhit * bias : 
-                phit + nhit * bias; 
 
             float kr; 
             fresnel(dir, nhit, ref_idx, kr); 
+            bool outside = dir.DotProduct(nhit) < 0;
+            Vector3d vbias = nhit * bias;
+            if(kr < 1)
+            {
+                Vector3d refractionDirection = refract(dir, nhit, ref_idx).Normalize(); 
+                Vector3d refractionRayOrig = (outside) ? 
+                    phit - vbias : 
+                    phit + vbias; 
+                sinfo.r2 = Ray(refractionRayOrig, refractionDirection);
+            }
+
+            Vector3d reflectionDirection = reflect(dir, nhit).Normalize(); 
+            Vector3d reflectionRayOrig = (reflectionDirection.DotProduct(nhit) < 0) ? 
+                phit - vbias : 
+                phit + vbias; 
+
             sinfo.ior = ref_idx;
             sinfo.kr = kr;
             sinfo.r1 = Ray(reflectionRayOrig, reflectionDirection);
-            sinfo.r2 = Ray(refractionRayOrig, refractionDirection);
             return true;
         }
+        /*virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
+        {
+            float kr; 
+            fresnel(r_in.getDirection(), nhit, ior, kr); 
+            bool outside = r_in.getDirection().DotProduct(nhit) < 0; 
+            Vector3d bias = nhit*bias; 
+                // compute refraction if it is not a case of total internal reflection
+            if (kr < 1) { 
+                Vector3d refractionDirection = refract(dir, hitNormal, isect.hitObject->ior).normalize(); 
+                Vector3d refractionRayOrig = outside ? hitPoint - bias : hitPoint + bias; 
+            } 
+ 
+            Vector3d reflectionDirection = reflect(dir, hitNormal).normalize(); 
+            Vector3d reflectionRayOrig = outside ? hitPoint + bias : hitPoint - bias; 
+            return true;
+        }*/
 
         double ref_idx;
 };
@@ -200,7 +217,7 @@ static Material *Green = new Diffuse(Vector3d(0.12, 0.45, 0.15), Vector3d(0.12, 
 static Material *White = new Diffuse(Vector3d(0.73, 0.73, 0.73), Vector3d(0.73, 0.73, 0.73), Vector3d(0), 1);
 static Material *BasicConductor = new Conductor(Vector3d(0.8), Vector3d(0.8), Vector3d(0.9), 76.8, 0.03);
 static Material *Basic2 = new Conductor( Vector3d(0.8, 0.6, 0.2), Vector3d(0.8,0.6,0.2), Vector3d(0.8,0.6,0.2), 30.8, 0.2);
-static Material *Di = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 2.417);
+static Material *Di = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 2.437);
 static Material *Di2 = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 1.5);
 
 #endif
