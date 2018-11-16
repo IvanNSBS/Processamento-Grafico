@@ -18,7 +18,7 @@ Vector3d refract(Vector3d &I, const Vector3d &N, const double &ior);
 
 void fresnel(Vector3d &I, const Vector3d &N, const float &ior, float &kr);
 
-enum mat_type{ lambertian, conductor, dielectric };
+enum mat_type{ lambertian, conductor, dielectric, light };
 
 struct ScatterInfo
 {
@@ -72,26 +72,6 @@ public:
         attenuation = albedo;
         return true;
     }
-    
-    /*virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
-        std::default_random_engine generator; 
-        std::uniform_real_distribution<float> distributor(0, 1); 
-        float bias = 1e-4;
-        Vector3d Nt, Nb; 
-        createCoordinateSystem(nhit, Nt, Nb); 
-        //float pdf = 1 / (2 * M_PI); 
-        float r1 = distributor(generator); 
-        float r2 = distributor(generator); 
-        Vector3d sample = uniformSampleHemisphere(r1, r2); 
-        Vector3d sampleWorld( 
-                sample.x * Nb.x + sample.y * nhit.x + sample.z * Nt.x, 
-                sample.x * Nb.y + sample.y * nhit.y + sample.z * Nt.y, 
-                sample.x * Nb.z + sample.y * nhit.z + sample.z * Nt.z); 
-        // don't forget to divide by PDF and multiply by cos(theta)
-        scattered = Ray(nhit + sampleWorld * bias, sampleWorld);
-        attenuation = albedo; 
-        return true;
-    }*/
     
     Vector3d albedo = Vector3d(0);
 };
@@ -186,7 +166,7 @@ class Dielectric : public Material{
 
 class Light : public Material{
     public:
-        Light(const Vector3d &ec):Material(ec){surfaceColor = ec;}
+        Light(const Vector3d &ec):Material(ec){surfaceColor = ec; matType = mat_type::light;}
         virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const 
         { attenuation = 1; return false; }
         virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const 

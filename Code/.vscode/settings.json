@@ -51,6 +51,11 @@
         "xthread": "cpp",
         "thread": "cpp",
         "unordered_map": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "future": "cpp",
+        "atomic": "cpp",
+        "condition_variable": "cpp",
+        "resumable": "cpp",
+        "mutex": "cpp"
     }
 }

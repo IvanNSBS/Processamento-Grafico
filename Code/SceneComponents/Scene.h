@@ -7,7 +7,16 @@
 #include "Ray.h"
 #include "../Vector/Vector3.cpp"
 #include <vector>
+#include <limits>
 #include "Camera.h"
+
+struct SceneOptions
+{
+    double nearClip = 0.0001;
+    double farClip = std::numeric_limits<double>::max();
+    int maxRayDepth = 5;
+    int raysPerPixel = 100;
+};
 
 class Scene {
 public:
@@ -24,7 +33,8 @@ public:
     Vector3d trace(const Ray& r, int depth);
 
     //Renderiza
-    void RenderScene();
+    void RenderScene(int minX, int minY, int boundX, int boundY);
+    //void RenderScene();
     //Adiciona um objeto a cena
     void add(Object* object);
 };
