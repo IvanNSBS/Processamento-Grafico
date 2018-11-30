@@ -2,7 +2,7 @@
 Canvas 320 240
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 10 5
+Options 0.001 10000000 800 5
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
 Camera 0 0 50 0 0 30 0 1 0 20 1
@@ -35,4 +35,4 @@ Sphere -11.0 -7.0 -20.0 4.0 Dii
 Sphere 11.0 -7.0 -20.0  4.0 Chrome
 
 #FileName(salvo na pasta RenderedImages)
-Filename CornnelBoxResult
+Filename CornnelBoxResultHD

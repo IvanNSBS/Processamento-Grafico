@@ -67,7 +67,6 @@ Vector3d Scene::trace(const Ray& r, int depth)
             { 
                 Vector3d transmission = 1; 
                 Vector3d lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
-                //Vector3d lightDirection = lights[i]->center - rec.phit;  
                 lightDirection.Normalize(); 
                 for (unsigned j = 0; j < objects.size(); ++j)
                 { 
@@ -77,7 +76,6 @@ Vector3d Scene::trace(const Ray& r, int depth)
                         HitRecord lrec;
                         if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
                         {  
-                            transmission = (lrec.t)/(lights[i]->center - rec.phit).Length(); 
                             transmission = 0.0; 
                             break; 
                         } 
@@ -111,7 +109,6 @@ Vector3d Scene::trace(const Ray& r, int depth)
             { 
                 Vector3d transmission = 1; 
                 Vector3d lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
-                //Vector3d lightDirection = lights[i]->center - rec.phit;  
                 lightDirection.Normalize(); 
                 for (unsigned j = 0; j < objects.size(); j++)
                 { 
@@ -121,7 +118,6 @@ Vector3d Scene::trace(const Ray& r, int depth)
                         HitRecord lrec;
                         if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
                         {  
-                            transmission = (lrec.t)/(lights[i]->center - rec.phit).Length(); 
                             transmission = 0.0;
                             break; 
                         } 
