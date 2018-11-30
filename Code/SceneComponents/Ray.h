@@ -9,8 +9,6 @@ private:
     Vector3d origin, direction;
 
 public:
-    mutable double tmin = DBL_EPSILON, tmax = DBL_MAX;
-
     Ray(): origin(0), direction(0){};
     Ray(Vector3d origin, Vector3d direction);
 

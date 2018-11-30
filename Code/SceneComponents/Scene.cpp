@@ -2,8 +2,6 @@
 #include "Material.h"
 #include <thread>
 
-#define MAX_RAY_DEPTH 10
-
 double clamp(const double& a, const double &min, const double &max)
 {
     if(a < min)
@@ -23,7 +21,7 @@ void Scene::add(Object* object)
 
 Vector3d Scene::trace(const Ray& r, int depth) 
 {
-    if(depth > MAX_RAY_DEPTH)
+    if(depth > options.rayDepth)
         return 1;
 
     Object* hitted = NULL;
@@ -33,9 +31,8 @@ Vector3d Scene::trace(const Ray& r, int depth)
     for (unsigned i = 0; i < objects.size(); ++i)
     { 
         //hitrecord temporario. Salva o hitrecord da esfera atual para verificar qual é o mais proximo
-        HitRecord temp_hrec;
-        double t0, t1; 
-        if ( objects[i]->intersect(r, t0, t1, temp_hrec) ) 
+        HitRecord temp_hrec; 
+        if ( objects[i]->intersect(r, options.tmin, options.tmax, temp_hrec) ) 
         {  
             if (temp_hrec.t < rec.t) 
             { 
@@ -62,8 +59,10 @@ Vector3d Scene::trace(const Ray& r, int depth)
             //Computa o global illumination pelo path tracing
             Ray scattered;
             Vector3d attenuation;
-            if(hitted->material->scatter(r, rec.phit, rec.nhit, attenuation, scattered))
-                surfaceColor += attenuation*trace(scattered, depth+1);
+            ScatterInfo sinfo;
+            if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
+                surfaceColor += sinfo.attenuation*trace(sinfo.r1, depth+1);
+
             for (unsigned i = 0; i < lights.size(); ++i) 
             { 
                 Vector3d transmission = 1; 
@@ -73,11 +72,10 @@ Vector3d Scene::trace(const Ray& r, int depth)
                 for (unsigned j = 0; j < objects.size(); ++j)
                 { 
                     if (objects[j]->material->matType != mat_type::light)
-                    { 
-                        double t0, t1;
+                    {
                         Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
                         HitRecord lrec;
-                        if (objects[j]->intersect(n, t0, t1, lrec) )
+                        if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
                         {  
                             transmission = (lrec.t)/(lights[i]->center - rec.phit).Length(); 
                             transmission = 0.0; 
@@ -91,16 +89,16 @@ Vector3d Scene::trace(const Ray& r, int depth)
 
                 //Fator difuso pelo modelo de iluminacao de Phong
                 Vector3d diffuse = transmission *   
-                hitted->material->surfaceColor * lights[i]->material->emissionColor * 
+                hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                 std::max(double(0), rec.nhit.DotProduct(lightDirection));
 
                 //Fator especular pelo modelo de iluminacao de Phong
-                Vector3d specular = transmission * lights[i]->material->emissionColor * 
+                Vector3d specular = transmission * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                 pow(std::max(double(0), R.DotProduct(r.getDirection()*-1)), hitted->material->alpha);
                             
                 //Aplica o modelo de iluminacao de Phong completo na surfaceColor
                 surfaceColor += (diffuse * hitted->material->Kd) + (specular * hitted->material->Ks);
-            }
+            };
             break;
         }
 
@@ -108,6 +106,7 @@ Vector3d Scene::trace(const Ray& r, int depth)
             ScatterInfo sinfo;
             hitted->material->scatter(r, rec.phit, rec.nhit, sinfo);
             surfaceColor = hitted->material->surfaceColor*trace(sinfo.r1, depth + 1); 
+            
             for (unsigned i = 0; i < lights.size(); i++) 
             { 
                 Vector3d transmission = 1; 
@@ -118,10 +117,9 @@ Vector3d Scene::trace(const Ray& r, int depth)
                 { 
                     if (objects[j]->material->matType != mat_type::light)
                     { 
-                        double t0, t1;
                         Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
                         HitRecord lrec;
-                        if (objects[j]->intersect(n, t0, t1, lrec) )
+                        if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
                         {  
                             transmission = (lrec.t)/(lights[i]->center - rec.phit).Length(); 
                             transmission = 0.0;
@@ -134,7 +132,7 @@ Vector3d Scene::trace(const Ray& r, int depth)
 
                 //Fator difuso pelo modelo de iluminacao de Phong
                 Vector3d diffuse = transmission *   
-                hitted->material->surfaceColor * lights[i]->material->emissionColor * 
+                hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                 std::max(double(0), rec.nhit.DotProduct(lightDirection));
                             
                 //Aplica o modelo de iluminacao de Phong completo na surfaceColor
@@ -148,7 +146,7 @@ Vector3d Scene::trace(const Ray& r, int depth)
             hitted->material->scatter(r, rec.phit, rec.nhit, sinfo);
             Vector3d reflectionColor = trace(sinfo.r1, depth + 1); 
             Vector3d refractionColor = trace(sinfo.r2, depth + 1);
-            surfaceColor = (reflectionColor * sinfo.kr) + (refractionColor * (1 - sinfo.kr));// * hitted->material->surfaceColor; 
+            surfaceColor = ((reflectionColor * sinfo.kr) + (refractionColor * (1 - sinfo.kr))) * hitted->material->surfaceColor; 
             break; 
         }
 
@@ -158,13 +156,12 @@ Vector3d Scene::trace(const Ray& r, int depth)
     }
     //Delimita o valor da cor entre 0 e 1
     return Vector3d( clamp(surfaceColor.x, 0.0, 1.0), clamp(surfaceColor.y, 0.0, 1.0), 
-                     clamp(surfaceColor.z, 0.0, 1.0) ) + hitted->material->emissionColor;
+                     clamp(surfaceColor.z, 0.0, 1.0) ) + (hitted->material->emissionColor*hitted->material->lightIntensity);
 }
 
 void Scene::RenderScene(int minX, int minY, int boundX, int boundY) 
 {   
     //Joga raios na cena
-    //std::cout << "Lights size: " << lights.size() << std::endl;
     for (unsigned y = minY; y < boundY; ++y)
         for (unsigned x = minX; x < boundX; ++x)
         {
@@ -175,9 +172,9 @@ void Scene::RenderScene(int minX, int minY, int boundX, int boundY)
             //calculando a media dos cem raios acumulados, conseguimos produzir anti-aliasing,
             //além de reduzir o ruido provocado pelo path tracing
             //(quanto mais raios, melhor o AA(super-sampling) e a reduçao de ruido)
-            int rayNum = 100;
+            int rayNum = options.raysPerPixel;
             for(int i = 0; i < rayNum; i++){
-                col = col + trace( camera->GetRay( x + drand48() , y + drand48() ), 0 );
+                col = col + trace( camera->GetRay( x + drand48() , y + drand48()), 0 );
             }
             double ns = double(rayNum);
             col = Vector3d (col.x/ns, col.y/ns, col.z/ns);

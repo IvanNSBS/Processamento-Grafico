@@ -5,6 +5,7 @@
 #include "Ray.h"
 #include <iostream>
 #include <random>
+#include <string>
 
 Vector3d random_in_unit_sphere();
 
@@ -24,52 +25,51 @@ struct ScatterInfo
 {
     Ray r1;//reflection
     Ray r2;//refraction
+    Vector3d attenuation;
     float ior;
     float kr;
 };
 
 struct Material
 {
-public:
+    public:
     Vector3d surfaceColor, emissionColor;
     Vector3d Kd, Ks; //Fator Difuso, Fator Especular, respectivamente (cor) 
-    double ior;
-    double alpha;
+    double ior, alpha;
     mat_type matType;
+    std::string matName;
+    double lightIntensity;
 
     Material();
     //Construtor para fonte de luz
     Material(const Vector3d & ec): emissionColor(ec){}
 
     //Construtor padrao de material 
-    Material(const Vector3d &sc, const Vector3d &d, 
-             const Vector3d &s, const double &a, mat_type mt):surfaceColor(sc), Kd(d), Ks(s), alpha(a), matType(mt) {}
+    Material(mat_type mt, const Vector3d &sc = 0, const Vector3d &d = 0, 
+             const Vector3d &s = 0, const double &a = 1, 
+             const std::string &name = ""):surfaceColor(sc), Kd(d), Ks(s), alpha(a), matType(mt), matName(name) {}
 
     //Funcao que calcula o raio resultante da reflexao/refracao
     //virtual, pois cada material tem suas regras de reflexao/refracao
-    virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, Vector3d &attenuation, Ray &scattered) const = 0;
     virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const = 0;
 
 };
 
 
 class Diffuse : public Material {
-public:
+    public:
     using Material::Material;
     Diffuse(const Vector3d &sc, const Vector3d &d, 
-            const Vector3d &s, const double &a):Material(sc, d, s, a, mat_type::lambertian), albedo(sc){}
-    Diffuse(const Vector3d &sc):Material(sc, sc, Vector3d(0), 1, mat_type::lambertian), albedo(sc){}
+            const Vector3d &s, const double &a, const std::string &name = ""):Material(mat_type::lambertian, sc, d, s, a, name), albedo(sc){}
+    Diffuse(const Vector3d &sc, const std::string &name):Material(mat_type::lambertian, sc, sc, Vector3d(0), 1, name), albedo(sc){}
 
     //Diffuse eh o material padrao para objetos difusos
     //scatter joga um raio em uma direcao aleatoria
     //baseada no local de impacto do raio incidente
-    virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
-    {return false;}
-
-    virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
+    virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const  {
         Vector3d target = phit + nhit + random_in_unit_sphere();
-        scattered = Ray(phit, target-phit);
-        attenuation = albedo;
+        sinfo.r1 = Ray(phit, target-phit);
+        sinfo.attenuation = albedo;
         return true;
     }
     
@@ -81,7 +81,7 @@ class Conductor : public Material{
         Conductor(const Vector3d& a, double f) : albedo(a), fuzz(f) { if(f < 1) fuzz = f; else fuzz = 1; }
         Conductor(const Vector3d &sc, const Vector3d &d, 
         const Vector3d &s, const double &a, 
-        double f):Material(sc, d, s, a, mat_type::conductor), albedo(sc), fuzz(f){if(f < 1) fuzz = f; else fuzz = 1;}
+        double f, const std::string &name = ""):Material(mat_type::conductor, sc, d, s, a, name), albedo(sc), fuzz(f){if(f < 1) fuzz = f; else fuzz = 1;}
 
         virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
         {
@@ -98,25 +98,16 @@ class Conductor : public Material{
             return true;
         }
 
-
-        virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const  {
-            Vector3d reflected = reflect(r_in.getDirection().Normalize(), nhit);
-            scattered = Ray(phit, reflected + random_in_unit_sphere()*fuzz);
-            attenuation = 1;
-            return ( scattered.getDirection().DotProduct(nhit)  > 0 );
-        }
         Vector3d albedo = Vector3d(0);
         double fuzz;
 };
 
 class Dielectric : public Material{
     public:
-    Dielectric(double ri) : Material(), ref_idx(ri) {}
-    Dielectric(const Vector3d &sc, const Vector3d &d, 
-               const Vector3d &s, const double &a, 
-               double ri):Material(sc, d, s, a, mat_type::dielectric), ref_idx(ri){}
-        virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, Vector3d &attenuation, Ray &scattered) const
-        {attenuation = 1; return false;}
+    //Dielectric(double ri) : Material(), ref_idx(ri) {}
+    Dielectric(const double &ri = 1.5, 
+               const Vector3d &sc = 1,
+               const std::string &name = ""):Material(mat_type::dielectric, sc, 1, 0, 1, name), ref_idx(ri){}
         virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const  {
             float bias = 1e-4;
             Vector3d dir = r_in.getDirection();
@@ -144,60 +135,28 @@ class Dielectric : public Material{
             sinfo.r1 = Ray(reflectionRayOrig, reflectionDirection);
             return true;
         }
-        /*virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
-        {
-            float kr; 
-            fresnel(r_in.getDirection(), nhit, ior, kr); 
-            bool outside = r_in.getDirection().DotProduct(nhit) < 0; 
-            Vector3d bias = nhit*bias; 
-                // compute refraction if it is not a case of total internal reflection
-            if (kr < 1) { 
-                Vector3d refractionDirection = refract(dir, hitNormal, isect.hitObject->ior).normalize(); 
-                Vector3d refractionRayOrig = outside ? hitPoint - bias : hitPoint + bias; 
-            } 
- 
-            Vector3d reflectionDirection = reflect(dir, hitNormal).normalize(); 
-            Vector3d reflectionRayOrig = outside ? hitPoint + bias : hitPoint - bias; 
-            return true;
-        }*/
 
         double ref_idx;
 };
 
 class Light : public Material{
     public:
-        Light(const Vector3d &ec):Material(ec){surfaceColor = ec; matType = mat_type::light;}
-        virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, Vector3d& attenuation, Ray& scattered) const 
-        { attenuation = 1; return false; }
+
+        Light(const Vector3d &ec, const double &str = 1,
+              const std::string &name = ""):Material(ec){
+                  surfaceColor = ec; matType = mat_type::light; matName = name; 
+                  lightIntensity = str;}
         virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const 
         { return false; }
 };
 
-
-static Material *Brass = new Diffuse( 
-                             Vector3d(0.329412, 0.223529, 0.027451), 
-                             Vector3d(0.780392, 0.568627, 0.113725),
-                             Vector3d(0.992157, 0.941176, 0.807843), 27.8974);
-static Material *Bronze = new Diffuse( 
-                             Vector3d(0.2125, 0.1275, 0.054), 
-                             Vector3d(0.714, 0.4284, 0.18144), 
-                             Vector3d(0.393548, 0.271906, 0.166721), 25.6);
 static Material *Chrome = new Conductor(Vector3d(0.25), Vector3d(0.4), Vector3d(0.774597), 76.8, 0.3);
 static Material *PolishedChrome = new Conductor(Vector3d(0.25), Vector3d(0.4), Vector3d(0.774597), 76.8, 0.03);
-static Material *PolishedGold = new Conductor( 
-                             Vector3d(0.24725, 0.2245, 0.0645), 
-                             Vector3d(0.34615, 0.3143, 0.0903),
-                             Vector3d(0.797357, 0.723991, 0.208006), 83.2, 0.25);
 
-static Material *Silver = new Diffuse( Vector3d(0.19225), Vector3d(1), Vector3d(0), 0);
-
-static Material *Lamb = new Diffuse(Vector3d(0.8, 0.3, 0.3), Vector3d(0.8, 0.3, 0.3), Vector3d(0), 1);
-static Material *Red = new Diffuse(Vector3d(0.65, 0.03, 0.03), Vector3d(0.65, 0.03, 0.03), Vector3d(0), 1);
-static Material *Green = new Diffuse(Vector3d(0.12, 0.45, 0.15), Vector3d(0.12, 0.45, 0.15), Vector3d(0), 1);
-static Material *White = new Diffuse(Vector3d(0.73, 0.73, 0.73), Vector3d(0.73, 0.73, 0.73), Vector3d(0), 1);
-static Material *BasicConductor = new Conductor(Vector3d(0.8), Vector3d(0.8), Vector3d(0.9), 76.8, 0.03);
-static Material *Basic2 = new Conductor( Vector3d(0.8, 0.6, 0.2), Vector3d(0.8,0.6,0.2), Vector3d(0.8,0.6,0.2), 30.8, 0.2);
-static Material *Di = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 2.437);
-static Material *Di2 = new Dielectric( Vector3d(1.0), Vector3d(1.0), Vector3d(0.0), 0, 1.5);
+static Material *Red = new Diffuse(Vector3d(0.65, 0.03, 0.03), Vector3d(0.9, 0.03, 0.03), Vector3d(0.2, 0.4, 0.1), 1);
+static Material *Green = new Diffuse(Vector3d(0.12, 0.45, 0.15), Vector3d(0.12, 0.75, 0.15), Vector3d(0.4, 0.5, 0), 1);
+static Material *White = new Diffuse(Vector3d(0.73, 0.73, 0.73), Vector3d(0.93, 0.93, 0.93), Vector3d(0), 1);
+static Material *Di = new Dielectric( 2.437);
+static Material *Di2 = new Dielectric( 1.5);
 
 #endif

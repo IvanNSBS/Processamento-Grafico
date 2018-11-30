@@ -21,27 +21,31 @@ double drand48()
 }
 
 //Calcula os dois pontos em que um raio intersecta uma esfera
-bool Sphere::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
+bool Sphere::intersect(const Ray& r, double &tmin, double &tmax, HitRecord& rec) const
 {
     Vector3d nhit = this->center - r.getOrigin(); 
-    float tca = nhit.DotProduct(r.getDirection()); 
+    double tca = nhit.DotProduct(r.getDirection()); 
         if (tca < 0) 
             return false; 
 
-    float d2 = nhit.DotProduct(nhit) - tca * tca; 
+    double d2 = nhit.DotProduct(nhit) - tca * tca; 
         if (d2 > radius*radius) 
             return false; 
                 
-    float thc = sqrt(radius*radius - d2); 
+    double thc = sqrt(radius*radius - d2); 
 
-    t0 = tca - thc; 
-    t1 = tca + thc;
+    double t0 = tca - thc; 
+    float t1 = tca + thc;
 
-    float tnear;
+    double tnear;
     if(t0 < 0)
         tnear = t1;
     else
         tnear = t0 < t1 ? t0 : t1;
+
+    if(tnear < tmin || tnear > tmax)
+        return false;
+    
     rec.t = tnear;
     rec.phit = r.getOrigin() + r.getDirection() * tnear;
     rec.nhit = rec.phit - center;
@@ -51,17 +55,16 @@ bool Sphere::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) con
     return true; 
 }
 
-bool XY_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
+bool XY_Rect::intersect(const Ray& r, double &tmin, double &tmax, HitRecord& rec) const
 {
     float tnear = (k-r.getOrigin().z) / r.getDirection().z;
-    //if(tnear < tmin || tnear > tmax)
-    //    return false;
+    if(tnear < tmin || tnear > tmax)
+        return false;
     float x = r.getOrigin().x + r.getDirection().x * tnear;
     float y = r.getOrigin().y + r.getDirection().y * tnear;
     if(x < x0 || x > x1 || y < y0 || y > y1)
         return false;
 
-    t0 = t1 = tnear;
     rec.t = tnear;
     rec.mat = this->material;
     rec.phit = r.getOrigin() + r.getDirection()*tnear;
@@ -70,17 +73,16 @@ bool XY_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) co
     return true; 
 }
 
-bool XZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
+bool XZ_Rect::intersect(const Ray& r, double &tmin, double &tmax, HitRecord& rec) const
 {
     float tnear = (k-r.getOrigin().y) / r.getDirection().y;
-    //if(tnear < tmin || tnear > tmax)
-    //    return false;
+    if(tnear < tmin || tnear > tmax)
+        return false;
     float x = r.getOrigin().x + r.getDirection().x * tnear;
     float z = r.getOrigin().z + r.getDirection().z * tnear;
     if(x < x0 || x > x1 || z < z0 || z > z1)
         return false;
 
-    t0 = t1 = tnear;
     rec.t = tnear;
     rec.mat = this->material;
     rec.phit = r.getOrigin() + r.getDirection()*tnear;
@@ -89,17 +91,16 @@ bool XZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) co
     return true; 
 }
 
-bool YZ_Rect::intersect(const Ray& r, double &t0, double &t1, HitRecord& rec) const
+bool YZ_Rect::intersect(const Ray& r, double &tmin, double &tmax, HitRecord& rec) const
 {
     float tnear = (k-r.getOrigin().x) / r.getDirection().x;
-    //if(tnear < tmin || tnear > tmax)
-    //    return false;
+    if(tnear < tmin || tnear > tmax)
+        return false;
     float y = r.getOrigin().y + r.getDirection().y * tnear;
     float z = r.getOrigin().z + r.getDirection().z * tnear;
     if(y < y0 || y > y1 || z < z0 || z > z1)
         return false;
 
-    t0 = t1 = tnear;
     rec.t = tnear;
     rec.mat = this->material;
     rec.phit = r.getOrigin() + r.getDirection()*tnear;

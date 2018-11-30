@@ -52,6 +52,7 @@
         "numeric": "cpp",
         "sstream": "cpp",
         "xlocmon": "cpp",
-        "xloctime": "cpp"
+        "xloctime": "cpp",
+        "thread": "cpp"
     }
 }
