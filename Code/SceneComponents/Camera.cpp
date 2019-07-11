@@ -14,6 +14,8 @@ Vector3d Rand_In_Disk()
         
         p = (Vector3d(random(), random(), 0) * 2) - Vector3d(1.0, 1.0, 0.0);
     }while(p.DotProduct(p) >= 1.0);
+
+    return p;
 }
 
 Camera::Camera(Vector3d position, Vector3d target, Vector3d up, double fov, double near)

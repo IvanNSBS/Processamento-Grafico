@@ -1,8 +1,8 @@
 #include "Scene.h"
-#include <thread>
 #include <fstream>
 #include <sstream>
 #include <ctime>
+#include <thread>
 
 using namespace std;
 
@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
 
     clock_t begin = clock();
-    int tnum = 80;
+    int tnum = 8;
     std::thread *tlist = new std::thread[tnum];
     for(int i = 0; i < tnum; i++)
     {

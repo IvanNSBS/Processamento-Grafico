@@ -1,10 +1,11 @@
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <cstdlib> 
 #include <cstdio> 
 #include <iostream> 
 #include <iomanip>
+
 using namespace std;
 
 template<typename K> 

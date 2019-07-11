@@ -1,6 +1,6 @@
 #include "Object.h"
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <random>
 

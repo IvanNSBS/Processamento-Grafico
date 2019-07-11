@@ -1,7 +1,7 @@
 #include "Material.h"
 #include <algorithm>
 #include <utility>
-#include <math.h>
+#include <cmath>
 
 //Calcula o vetor apos a reflexao com a superficie
 Vector3d reflect( Vector3d &v, const Vector3d& n) {

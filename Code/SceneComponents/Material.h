@@ -33,7 +33,7 @@ struct ScatterInfo
 struct Material
 {
     public:
-    Vector3d surfaceColor, emissionColor;
+    Vector3d surfaceColor, emissionColor = 0;
     Vector3d Kd, Ks; //Fator Difuso, Fator Especular, respectivamente (cor) 
     double ior, alpha;
     mat_type matType;
