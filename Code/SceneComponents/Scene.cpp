@@ -61,7 +61,8 @@ Vector3d Scene::trace(const Ray& r, int depth)
             Vector3d attenuation;
             ScatterInfo sinfo;
             if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-                surfaceColor += sinfo.attenuation*trace(sinfo.r1, depth+1);
+                surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);
+                // surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
 
             if( false ){
                 for (unsigned i = 0; i < lights.size(); ++i) 
@@ -104,8 +105,9 @@ Vector3d Scene::trace(const Ray& r, int depth)
 
         case mat_type::conductor:{
             ScatterInfo sinfo;
-            hitted->material->scatter(r, rec.phit, rec.nhit, sinfo);
-            surfaceColor = hitted->material->surfaceColor*trace(sinfo.r1, depth + 1); 
+            if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
+                surfaceColor = hitted->material->surfaceColor + trace(sinfo.r1, depth+1);
+            // surfaceColor = hitted->material->surfaceColor*trace(sinfo.r1, depth+1);
             
             if( false ){
                 for (unsigned i = 0; i < lights.size(); i++) 
@@ -162,7 +164,7 @@ Vector3d Scene::trace(const Ray& r, int depth)
         }
     }
     //Delimita o valor da cor entre 0 e 1
-    return surfaceColor + (hitted->material->emissionColor * hitted->material->lightIntensity);
+    return (surfaceColor) + (hitted->material->emissionColor * hitted->material->lightIntensity);
     // return Vector3d( clamp(surfaceColor.x, 0.0, 1.0), clamp(surfaceColor.y, 0.0, 1.0), 
                     //  clamp(surfaceColor.z, 0.0, 1.0) ) + (hitted->material->emissionColor * hitted->material->lightIntensity);
 }

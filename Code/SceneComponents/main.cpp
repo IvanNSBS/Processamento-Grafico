@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 
 
     clock_t begin = clock();
-    int tnum = 8;
+    int tnum = 2;
     std::thread *tlist = new std::thread[tnum];
     for(int i = 0; i < tnum; i++)
     {

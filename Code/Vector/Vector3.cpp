@@ -21,6 +21,8 @@ public:
     K Length() { return sqrt(x * x + y * y + z * z); } 
     K Length_Squared() { return x * x + y * y + z * z; } 
 
+    K get_luminance(){ return 0.2126*x + 0.7152*y + 0.0722*z; }
+
     Vector3<K>& Normalize() 
     { 
         K len = Length(); 

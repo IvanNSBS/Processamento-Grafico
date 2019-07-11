@@ -59,19 +59,29 @@ void Image::SaveAsPBM(const std::string &filepath, const std::string &filename)
     ofs << "P6\n" << width << " " << height << "\n255\n"; 
     for (unsigned i = 0; i < width * height; ++i)
     { 
-        ofs << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255.0) << 
-               (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255.0) << 
-               (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255.0); 
+        ofs << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255.0 ) << 
+               (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255.0 ) << 
+               (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255.0 ); 
     }
     ofs.close();
 
     
+    /*
+        0.2126*x' + 0.7152*y' + 0.0722*z' = 3
+        0.2126*x1 + 0.7152*y1 + 0.0722*z1 = 0.6
+
+        0.5008856
+        0.2126x1 = Lo*0.2126x'/L
+        x1 = Lo*x/L
+        (0.2126*x1 + 0.7152*y1 + 0.0722*z1) = 0.6*(0.2126*x + 0.7152*y + 0.0722*z)/3
+     */
+
     std::vector<Vector3d> filtered;
     filtered.reserve(width*height);
 
     for(int i = 0; i < height; i++)
         for(int j = 0; j < width; j++)
-            filtered[i*width+j] = (buffer[i*width+j].Length() <= 2.25 ? Vector3d(0) : buffer[i*width+j]);
+            filtered[i*width+j] = (buffer[i*width+j].get_luminance() <= 0.72 ? Vector3d(0) : buffer[i*width+j]);
 
     std::vector<Vector3d> blurred;
     gaussBlur_1(filtered, blurred, this->width, this->height, 4.0f);
@@ -85,7 +95,13 @@ void Image::SaveAsPBM(const std::string &filepath, const std::string &filename)
     ofs3 << "P6\n" << width << " " << height << "\n255\n"; 
     for (unsigned i = 0; i < width * height; ++i)
     { 
-
+        float Lo = (buffer[i].get_luminance()/(buffer[i].get_luminance() + 10.0));
+        float L = buffer[i].get_luminance();
+        std::cout << "L = " << buffer[i].get_luminance() << "\t";
+        std::cout << "Lo = " << (buffer[i].get_luminance()/(buffer[i].get_luminance() + 1.0)) << "\n";
+        std::cout << "Col = " << buffer[i] << "\n";
+        std::cout << "tnCol = " << (buffer[i] * Lo)/L << "\n";
+        buffer[i] = (buffer[i] * Lo)/L;
         ofs3 << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255.0) << 
                 (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255.0) << 
                 (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255.0); 

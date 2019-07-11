@@ -2,10 +2,10 @@
 
 #define M_PI 3.141592653589793
 
-double random()
-{
-    return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-}
+// double random()
+// {
+//     return static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+// }
 
 Vector3d Rand_In_Disk()
 {

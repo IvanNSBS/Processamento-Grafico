@@ -9,7 +9,7 @@
 
 Vector3d random_in_unit_sphere();
 
-double drand48();
+// double drand48();
 
 Vector3d reflect( Vector3d &v, const Vector3d& n);
 
