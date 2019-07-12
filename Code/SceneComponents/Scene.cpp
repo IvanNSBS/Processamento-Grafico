@@ -61,10 +61,10 @@ Vector3d Scene::trace(const Ray& r, int depth)
             Vector3d attenuation;
             ScatterInfo sinfo;
             if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-                surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);
+                surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
                 // surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
 
-            if( false ){
+            if( true ){
                 for (unsigned i = 0; i < lights.size(); ++i) 
                 { 
                     Vector3d transmission = 1; 
@@ -88,16 +88,16 @@ Vector3d Scene::trace(const Ray& r, int depth)
                     Vector3d R = reflect(lightDirection, rec.nhit);
 
                     //Fator difuso pelo modelo de iluminacao de Phong
-                    Vector3d diffuse = transmission *   
+                    Vector3d diffuse = 1.0 *   
                     hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                     std::max(double(0), rec.nhit.DotProduct(lightDirection));
 
                     //Fator especular pelo modelo de iluminacao de Phong
-                    Vector3d specular = transmission * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                    Vector3d specular = 1.0 * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                     pow(std::max(double(0), R.DotProduct(r.getDirection()*-1)), hitted->material->alpha);
                                 
                     //Aplica o modelo de iluminacao de Phong completo na surfaceColor
-                    surfaceColor += (diffuse * hitted->material->Kd) + (specular * hitted->material->Ks);
+                    // surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks))*transmission;
                 };
             }
             break;
@@ -105,11 +105,11 @@ Vector3d Scene::trace(const Ray& r, int depth)
 
         case mat_type::conductor:{
             ScatterInfo sinfo;
-            if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-                surfaceColor = hitted->material->surfaceColor + trace(sinfo.r1, depth+1);
+            if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo)){
+                surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
+            }
             // surfaceColor = hitted->material->surfaceColor*trace(sinfo.r1, depth+1);
-            
-            if( false ){
+            if( true ){
                 for (unsigned i = 0; i < lights.size(); i++) 
                 { 
                     Vector3d transmission = 1; 
@@ -132,12 +132,15 @@ Vector3d Scene::trace(const Ray& r, int depth)
                     Vector3d R = reflect(lightDirection, rec.nhit);
 
                     //Fator difuso pelo modelo de iluminacao de Phong
-                    Vector3d diffuse = transmission *   
+                    Vector3d diffuse = 1.0 *   
                     hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
                     std::max(double(0), rec.nhit.DotProduct(lightDirection));
+
+                    Vector3d specular = 1.0 * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                    pow(std::max(double(0), R.DotProduct(r.getDirection()*-1)), hitted->material->alpha);
                                 
                     //Aplica o modelo de iluminacao de Phong completo na surfaceColor
-                    surfaceColor += (diffuse * hitted->material->Kd);
+                    // surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks))*transmission;
                 }
             }
             break;
@@ -159,12 +162,12 @@ Vector3d Scene::trace(const Ray& r, int depth)
         case mat_type::light :{
             // ScatterInfo sinfo;
             // hitted->material->scatter(r, rec.phit, rec.nhit, sinfo);
-            // surfaceColor = (hitted->material->emissionColor * hitted->material->lightIntensity);
+            surfaceColor = (hitted->material->emissionColor * hitted->material->lightIntensity);
             break;
         }
     }
     //Delimita o valor da cor entre 0 e 1
-    return (surfaceColor) + (hitted->material->emissionColor * hitted->material->lightIntensity);
+    return (surfaceColor);// + (hitted->material->emissionColor * hitted->material->lightIntensity));
     // return Vector3d( clamp(surfaceColor.x, 0.0, 1.0), clamp(surfaceColor.y, 0.0, 1.0), 
                     //  clamp(surfaceColor.z, 0.0, 1.0) ) + (hitted->material->emissionColor * hitted->material->lightIntensity);
 }

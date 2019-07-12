@@ -88,23 +88,54 @@ void Image::SaveAsPBM(const std::string &filepath, const std::string &filename)
 
     for(int i = 0; i < height; i++)
         for(int j = 0 ; j < width; j++)
-            if( blurred[i*width+j].Length() > 0.0 )
-                buffer[i*width+j] = blurred[i*width+j] + buffer[i*width+j];
+            if( blurred[i*width+j].Length() > 0.0 ){
+                buffer[i*width+j] = (blurred[i*width+j] + buffer[i*width+j]);
+                float Lo = (buffer[i].get_luminance()/(buffer[i].get_luminance() + 1.0));
+                float L = buffer[i].get_luminance();
+                // std::cout << "L = " << buffer[i].get_luminance() << "\t";
+                // std::cout << "Lo = " << (buffer[i].get_luminance()/(buffer[i].get_luminance() + 3.0)) << "\n";
+                // std::cout << "Col = " << buffer[i] << "\n";
+                buffer[i] = Vector3d( (buffer[i].x * Lo)/(L), (buffer[i].y * Lo)/(L), (buffer[i].z * Lo)/(L));
+            }
 
+    // float bX = -1;
+    // float bY = -1;
+    // float bZ = -1;
+    // for(int i = 0; i < height; i++){
+    //     for(int j = 0 ; j < width; j++){
+
+    //         if( bX < buffer[i*width+j].x )
+    //             bX = buffer[i*width+j].x;
+
+    //         if( bX < buffer[i*width+j].y )
+    //             bX = buffer[i*width+j].y;
+
+    //         if( bX < buffer[i*width+j].z )
+    //             bX = buffer[i*width+j].z;
+    //     }
+    // }
+
+    // for(int i = 0; i < height; i++){
+    //     for(int j = 0 ; j < width; j++){
+    //         buffer[i*width+j] = Vector3d(buffer[i*width+j].x/bX, buffer[i*width+j].y/bX, buffer[i*width+j].z/bX);
+    //     }
+    // }
+
+    /*
+    L = 0.262826    Lo = 0.208125
+    Col = ( 0.241027 , 0.272793 , 0.228281 )
+
+    tnCol = ( 0.241027 , 0.272793 , 0.228281 )
+    */
+    // std::cout << bX << " | " << bY << " | " << bZ << "\n";
     std::ofstream ofs3(filepath + filename + "_bloom.ppm", std::ios::out | std::ios::binary); 
     ofs3 << "P6\n" << width << " " << height << "\n255\n"; 
     for (unsigned i = 0; i < width * height; ++i)
     { 
-        float Lo = (buffer[i].get_luminance()/(buffer[i].get_luminance() + 10.0));
-        float L = buffer[i].get_luminance();
-        std::cout << "L = " << buffer[i].get_luminance() << "\t";
-        std::cout << "Lo = " << (buffer[i].get_luminance()/(buffer[i].get_luminance() + 1.0)) << "\n";
-        std::cout << "Col = " << buffer[i] << "\n";
-        std::cout << "tnCol = " << (buffer[i] * Lo)/L << "\n";
-        buffer[i] = (buffer[i] * Lo)/L;
-        ofs3 << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255.0) << 
-                (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255.0) << 
-                (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255.0); 
+        // std::cout << "tnCol = " << (buffer[i]) << "\n";
+        ofs3 << (unsigned char)(std::min(double(1), (double)buffer[i].x) * 255) << 
+                (unsigned char)(std::min(double(1), (double)buffer[i].y) * 255) << 
+                (unsigned char)(std::min(double(1), (double)buffer[i].z) * 255); 
     }
     ofs3.close();
 }

@@ -93,8 +93,9 @@ class Conductor : public Material{
                 phit - nhit * bias; 
             sinfo.r1 = (Ray(reflectionRayOrig, reflectionDirection + random_in_unit_sphere()*fuzz)); 
             sinfo.r2 = Ray(0,0);
-            sinfo.kr = 1;
-            sinfo.ior = 1;
+            sinfo.attenuation = albedo;
+            // sinfo.kr = 1;
+            // sinfo.ior = 1;
             return true;
         }
 
