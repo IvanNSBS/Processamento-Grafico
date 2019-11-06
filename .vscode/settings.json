@@ -53,6 +53,7 @@
         "sstream": "cpp",
         "xlocmon": "cpp",
         "xloctime": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "random": "cpp"
     }
 }

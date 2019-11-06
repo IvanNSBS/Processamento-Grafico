@@ -1,20 +1,26 @@
 #pragma once
 
-#include "../Vector/Vector3.cpp"
+#include "../../vec3.h"
 #include "float.h"
 
 class Ray
 {
 private: 
-    Vector3d origin, direction;
+    vec3 origin, direction;
 
 public:
-    Ray(): origin(0), direction(0){};
-    Ray(Vector3d origin, Vector3d direction);
+    Ray(): origin( vec3(0,0,0)), direction(vec3(0,0,0)){};
+    Ray(vec3 o, vec3 d): origin(o), direction(d){};
 
-    Vector3d sample(const double& t) const;
+    vec3 sample(const double& t) const{
+        return this->origin + (this->direction * t);
+    }
 
-    Vector3d getOrigin() const;
+    vec3 getOrigin() const{
+        return origin;
+    }
 
-    Vector3d getDirection() const;
+    vec3 getDirection() const{
+        return direction;
+    }
 };

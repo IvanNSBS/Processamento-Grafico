@@ -1,4 +1,4 @@
-#include "Scene.h"
+#include "scene.h"
 #include <fstream>
 #include <sstream>
 #include <ctime>
@@ -47,63 +47,63 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
                     im = new Image(w, h);
                 }
                 else if(next == "Options"){
-                    double tmin, tmax;
+                    float tmin, tmax;
                     int rpPixel, depth;
                     stream >> tmin >> tmax >> rpPixel >> depth;
                     options = SceneOptions(tmin, tmax, depth, rpPixel);
                 }
                 else if(next == "Camera"){
-                    double px, py, pz;
-                    double tx, ty, tz;
-                    double ux, uy, uz;
-                    double fov, near;
+                    float px, py, pz;
+                    float tx, ty, tz;
+                    float ux, uy, uz;
+                    float fov, near;
                     stream >> px >> py >> pz;
                     stream >> tx >> ty >> tz;
                     stream >> ux >> uy >> uz;
                     stream >> fov >> near;
-                    cam = new Camera(im, Vector3d(px, py, pz), Vector3d(tx, ty, tz), Vector3d(ux, uy, uz), fov, near);
+                    cam = new Camera(im, vec3(px, py, pz), vec3(tx, ty, tz), vec3(ux, uy, uz), fov, near);
                     scene->camera = cam;
                     scene->options = options;
                 }
                 else if(next == "Diffuse"){
-                    double r, g, b;
-                    double kdx, kdy, kdz;
-                    double ksx, ksy, ksz;
-                    double alpha;
+                    float r, g, b;
+                    float kdx, kdy, kdz;
+                    float ksx, ksy, ksz;
+                    float alpha;
                     string name;
                     stream >> r >> g >> b >> kdx >> kdy >> kdz >> ksx >> ksy >> ksz >> alpha >> name;
-                    mlist.push_back( new Diffuse(Vector3d(r,g,b), Vector3d(kdx,kdy,kdz), Vector3d(ksx,ksy,ksz), alpha, name));
+                    mlist.push_back( new Diffuse(vec3(r,g,b), vec3(kdx,kdy,kdz), vec3(ksx,ksy,ksz), alpha, name));
                 }
                 else if(next == "Conductor"){
-                    double r, g, b;
-                    double kdx, kdy, kdz;
-                    double ksx, ksy, ksz;
-                    double alpha;
+                    float r, g, b;
+                    float kdx, kdy, kdz;
+                    float ksx, ksy, ksz;
+                    float alpha;
                     float fuzz;
                     string name;
                     stream >> r >> g >> b >> kdx >> kdy >> kdz >> ksx >> ksy >> ksz >> alpha >> fuzz >> name;
-                    mlist.push_back( new Conductor(Vector3d(r,g,b), Vector3d(kdx,kdy,kdz), Vector3d(ksx,ksy,ksz), alpha, fuzz, name));
+                    mlist.push_back( new Conductor(vec3(r,g,b), vec3(kdx,kdy,kdz), vec3(ksx,ksy,ksz), alpha, fuzz, name));
                 }
                 else if(next == "Dielectric"){
-                    double ior;
-                    double r, g, b;
+                    float ior;
+                    float r, g, b;
                     float fuzz;
                     string name;
                     stream >> ior >> r >> g >> b >> name;
-                    mlist.push_back( new Dielectric(ior, Vector3d(r,g,b), name));
+                    mlist.push_back( new Dielectric(ior, vec3(r,g,b), name));
                 }
                 else if(next == "Light"){
-                    double r, g, b;
-                    double intensity;
+                    float r, g, b;
+                    float intensity;
                     string name;
                     stream >> r >> g >> b >> intensity >> name;
-                    mlist.push_back( new Light(Vector3d(r,g,b), intensity, name));
+                    mlist.push_back( new Light(vec3(r,g,b), intensity, name));
                 }
                 else if(next == "Sphere"){
-                    double cx, cy, cz, radius;
+                    float cx, cy, cz, radius;
                     string name;
                     stream >> cx >> cy >> cz >> radius >> name;
-                    scene->add(new Sphere(Vector3d(cx, cy, cz), radius, findMat(mlist, name)));
+                    scene->add(new Sphere(vec3(cx, cy, cz), radius, findMat(mlist, name)));
                 }
                 else if(next == "Filename"){
                     string fname;
@@ -114,19 +114,20 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
         }
         getline(file, str);
     }
+    string name = "Red";
+    scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
     return;
 }
 
 int main(int argc, char **argv) 
 { 
-    //Para compilar: g++ -o r -std=c++14 -pthread Scene.cpp Object.cpp Ray.cpp Camera.cpp Image.cpp Material.cpp main.cpp
+    //Para compilar: g++ -o r -std=c++14 -pthread main.cpp
     Scene *scene = new Scene();
     std::string filename;
     readFile(scene, "cornellbox.txt", filename);
 
-
     clock_t begin = clock();
-    int tnum = 2;
+    int tnum = 16;
     std::thread *tlist = new std::thread[tnum];
     for(int i = 0; i < tnum; i++)
     {
@@ -139,10 +140,10 @@ int main(int argc, char **argv)
     } 
 
     clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    float elapsed_secs = float(end - begin) / CLOCKS_PER_SEC;
     std::cout << "RenderTime with " << tnum << " threads = "<< elapsed_secs << "s" << std::endl;
 
-    scene->camera->canvas->SaveAsPBM("../RenderedImages/", filename);
+    scene->camera->canvas->SaveAsPBM("./RenderedImages/", filename);
 
     return 0; 
 }   

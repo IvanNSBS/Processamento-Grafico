@@ -1,31 +1,75 @@
 #ifndef MATERIALH
 #define MATERIALH
 
-#include "../Vector/Vector3.cpp"
-#include "Ray.h"
+#include "../../vec3.h"
+#include "ray.h"
 #include <iostream>
 #include <random>
 #include <string>
+#include <algorithm>
+#include <utility>
+#include <cmath>
 
-Vector3d random_in_unit_sphere();
+vec3 random_in_unit_sphere();
 
-// double drand48();
-
-Vector3d reflect( Vector3d &v, const Vector3d& n);
-
-double limit(const double& a, const double &min, const double &max);
-
-Vector3d refract(Vector3d &I, const Vector3d &N, const double &ior);
-
-void fresnel(Vector3d &I, const Vector3d &N, const float &ior, float &kr);
+// float drand48();
 
 enum mat_type{ lambertian, conductor, dielectric, light };
+
+//Calcula o vetor apos a reflexao com a superficie
+vec3 reflect( vec3 &v, const vec3& n) {
+     return v - (n * (2*dot(v, n)));
+}
+
+float limit(const float& a, const float &min, const float &max)
+{
+    if(a < min)
+        return min;
+    else if(a > max)
+        return max;
+
+    return a;
+}
+
+void fresnel(vec3 &I, const vec3 &N, const float &ior, float &kr) 
+{ 
+    float cosi = limit(dot(I,N),-1, 1); 
+    float etai = 1, etat = ior; 
+    if (cosi > 0) {  std::swap(etai, etat); } 
+    // Compute sini using Snell's law
+    float sint = etai / etat * sqrt(std::max(0.f, 1 - (cosi * cosi))); 
+    // Total internal reflection
+    if (sint >= 1) { 
+        kr = 1; 
+    } 
+    else { 
+        float cost = sqrt(std::max(0.f, 1 - (sint * sint))); 
+        cosi = fabsf(cosi); 
+        float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost)); 
+        float Rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost)); 
+        kr = ((Rs * Rs) + (Rp * Rp)) / 2; 
+    } 
+    // As a consequence of the conservation of energy, transmittance is given by:
+    // kt = 1 - kr;
+} 
+
+vec3 refract(vec3 &I, const vec3 &N, const float &ior)
+{ 
+    float cosi = limit(dot(I, N),-1,1); 
+    float etai = 1, etat = ior; 
+    vec3 n = N; 
+    if (cosi < 0) { cosi = -cosi; } else { std::swap(etai, etat); n= N*-1; } 
+    float eta = etai / etat; 
+    float k = 1 - eta * eta * (1 - cosi * cosi); 
+    return k < 0 ? 0 : (I*eta) + (n*(eta * cosi - sqrtf(k))); 
+}
 
 struct ScatterInfo
 {
     Ray r1;//reflection
     Ray r2;//refraction
-    Vector3d attenuation;
+    vec3 attenuation;
+    vec3 surface_col;
     float ior;
     float kr;
 };
@@ -33,25 +77,25 @@ struct ScatterInfo
 struct Material
 {
     public:
-    Vector3d surfaceColor, emissionColor = 0;
-    Vector3d Kd, Ks; //Fator Difuso, Fator Especular, respectivamente (cor) 
-    double ior, alpha;
+    vec3 surfaceColor, emissionColor = 0;
+    vec3 Kd, Ks; //Fator Difuso, Fator Especular, respectivamente (cor) 
+    float ior, alpha;
     mat_type matType;
     std::string matName;
-    double lightIntensity;
+    float lightIntensity;
 
     Material();
     //Construtor para fonte de luz
-    Material(const Vector3d & ec): emissionColor(ec){}
+    Material(const vec3 & ec): emissionColor(ec){}
 
     //Construtor padrao de material 
-    Material(mat_type mt, const Vector3d &sc = 0, const Vector3d &d = 0, 
-             const Vector3d &s = 0, const double &a = 1, 
+    Material(mat_type mt, const vec3 &sc = 0, const vec3 &d = 0, 
+             const vec3 &s = 0, const float &a = 1, 
              const std::string &name = ""):surfaceColor(sc), Kd(d), Ks(s), alpha(a), matType(mt), matName(name) {}
 
     //Funcao que calcula o raio resultante da reflexao/refracao
     //virtual, pois cada material tem suas regras de reflexao/refracao
-    virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const = 0;
+    virtual bool scatter(const Ray &r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const = 0;
 
 };
 
@@ -59,77 +103,75 @@ struct Material
 class Diffuse : public Material {
     public:
     using Material::Material;
-    Diffuse(const Vector3d &sc, const Vector3d &d, 
-            const Vector3d &s, const double &a, const std::string &name = ""):Material(mat_type::lambertian, sc, d, s, a, name), albedo(sc){}
-    Diffuse(const Vector3d &sc, const std::string &name):Material(mat_type::lambertian, sc, sc, Vector3d(0), 1, name), albedo(sc){}
+    Diffuse(const vec3 &sc, const vec3 &d, 
+            const vec3 &s, const float &a, const std::string &name = ""):Material(mat_type::lambertian, sc, d, s, a, name), albedo(d){}
+    Diffuse(const vec3 &sc, const std::string &name):Material(mat_type::lambertian, sc, sc, vec3(0), 1, name), albedo(sc){}
 
     //Diffuse eh o material padrao para objetos difusos
     //scatter joga um raio em uma direcao aleatoria
     //baseada no local de impacto do raio incidente
-    virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const  {
-        Vector3d target = phit + nhit + random_in_unit_sphere();
+    virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const  {
+        vec3 target = phit + nhit + random_in_unit_sphere();
         sinfo.r1 = Ray(phit, target-phit);
         sinfo.attenuation = albedo;
+        sinfo.surface_col = this->surfaceColor;
         return true;
     }
     
-    Vector3d albedo = Vector3d(0);
+    vec3 albedo = vec3(0);
 };
 
 class Conductor : public Material{
     public:
-        Conductor(const Vector3d& a, double f) : albedo(a), fuzz(f) { if(f < 1) fuzz = f; else fuzz = 1; }
-        Conductor(const Vector3d &sc, const Vector3d &d, 
-        const Vector3d &s, const double &a, 
-        double f, const std::string &name = ""):Material(mat_type::conductor, sc, d, s, a, name), albedo(sc), fuzz(f){if(f < 1) fuzz = f; else fuzz = 1;}
+        Conductor(const vec3& a, float f) : albedo(a), fuzz(f) { if(f < 1) fuzz = f; else fuzz = 1; }
+        Conductor(const vec3 &sc, const vec3 &d, 
+        const vec3 &s, const float &a, 
+        float f, const std::string &name = ""):Material(mat_type::conductor, sc, d, s, a, name), albedo(sc), fuzz(f){if(f < 1) fuzz = f; else fuzz = 1;}
 
-        virtual bool scatter(const Ray &r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const
+        virtual bool scatter(const Ray &r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const
         {
             float bias = 1e-4;
-            Vector3d rdir = r_in.getDirection();
-            Vector3d reflectionDirection = reflect(rdir, nhit); 
-            Vector3d reflectionRayOrig = (reflectionDirection.DotProduct(nhit) < 0) ? 
+            vec3 rdir = r_in.getDirection();
+            vec3 reflectionDirection = reflect(rdir, nhit); 
+            vec3 reflectionRayOrig = (dot(reflectionDirection, nhit) < 0) ? 
                 phit + nhit * bias : 
                 phit - nhit * bias; 
             sinfo.r1 = (Ray(reflectionRayOrig, reflectionDirection + random_in_unit_sphere()*fuzz)); 
             sinfo.r2 = Ray(0,0);
             sinfo.attenuation = albedo;
+            sinfo.surface_col = this->surfaceColor;
             // sinfo.kr = 1;
             // sinfo.ior = 1;
             return true;
         }
 
-        Vector3d albedo = Vector3d(0);
-        double fuzz;
+        vec3 albedo = vec3(0);
+        float fuzz;
 };
 
 class Dielectric : public Material{
     public:
-    //Dielectric(double ri) : Material(), ref_idx(ri) {}
-    Dielectric(const double &ri = 1.5, 
-               const Vector3d &sc = 1,
+    //Dielectric(float ri) : Material(), ref_idx(ri) {}
+    Dielectric(const float &ri = 1.5, 
+               const vec3 &sc = 1,
                const std::string &name = ""):Material(mat_type::dielectric, sc, 1, 0, 1, name), ref_idx(ri){}
-        virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const  {
+        virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const  {
             float bias = 1e-4;
-            Vector3d dir = r_in.getDirection();
+            vec3 dir = r_in.getDirection();
 
             float kr; 
             fresnel(dir, nhit, ref_idx, kr); 
-            bool outside = dir.DotProduct(nhit) < 0;
-            Vector3d vbias = nhit * bias;
+            bool outside = dot(dir, nhit) < 0;
+            vec3 vbias = nhit * bias;
             if(kr < 1)
             {
-                Vector3d refractionDirection = refract(dir, nhit, ref_idx).Normalize(); 
-                Vector3d refractionRayOrig = (outside) ? 
-                    phit - vbias : 
-                    phit + vbias; 
+                vec3 refractionDirection = unit_vector(refract(dir, nhit, ref_idx)); 
+                vec3 refractionRayOrig = (outside) ? phit - vbias : phit + vbias; 
                 sinfo.r2 = Ray(refractionRayOrig, refractionDirection);
             }
 
-            Vector3d reflectionDirection = reflect(dir, nhit).Normalize(); 
-            Vector3d reflectionRayOrig = (reflectionDirection.DotProduct(nhit) < 0) ? 
-                phit - vbias : 
-                phit + vbias; 
+            vec3 reflectionDirection = unit_vector(reflect(dir, nhit)); 
+            vec3 reflectionRayOrig = ( dot(reflectionDirection, nhit) < 0) ? phit - vbias : phit + vbias; 
 
             sinfo.ior = ref_idx;
             sinfo.kr = kr;
@@ -137,26 +179,26 @@ class Dielectric : public Material{
             return true;
         }
 
-        double ref_idx;
+        float ref_idx;
 };
 
 class Light : public Material{
     public:
 
-        Light(const Vector3d &ec, const double &str = 1,
+        Light(const vec3 &ec, const float &str = 1,
               const std::string &name = ""):Material(ec){
                   surfaceColor = ec; matType = mat_type::light; matName = name; 
                   lightIntensity = str;}
-        virtual bool scatter(const Ray& r_in, Vector3d &phit, Vector3d &nhit, ScatterInfo &sinfo) const 
+        virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const 
         { return false; }
 };
 
-static Material *Chrome = new Conductor(Vector3d(0.25), Vector3d(0.4), Vector3d(0.774597), 76.8, 0.3);
-static Material *PolishedChrome = new Conductor(Vector3d(0.25), Vector3d(0.4), Vector3d(0.774597), 76.8, 0.03);
+static Material *Chrome = new Conductor(vec3(0.25), vec3(0.4), vec3(0.774597), 76.8, 0.3);
+static Material *PolishedChrome = new Conductor(vec3(0.25), vec3(0.4), vec3(0.774597), 76.8, 0.03);
 
-static Material *Red = new Diffuse(Vector3d(0.65, 0.03, 0.03), Vector3d(0.9, 0.03, 0.03), Vector3d(0.2, 0.4, 0.1), 1);
-static Material *Green = new Diffuse(Vector3d(0.12, 0.45, 0.15), Vector3d(0.12, 0.75, 0.15), Vector3d(0.4, 0.5, 0), 1);
-static Material *White = new Diffuse(Vector3d(0.73, 0.73, 0.73), Vector3d(0.93, 0.93, 0.93), Vector3d(0), 1);
+static Material *Red = new Diffuse(vec3(0.65, 0.03, 0.03), vec3(0.9, 0.03, 0.03), vec3(0.2, 0.4, 0.1), 1);
+static Material *Green = new Diffuse(vec3(0.12, 0.45, 0.15), vec3(0.12, 0.75, 0.15), vec3(0.4, 0.5, 0), 1);
+static Material *White = new Diffuse(vec3(0.73, 0.73, 0.73), vec3(0.93, 0.93, 0.93), vec3(0), 1);
 static Material *Di = new Dielectric( 2.437);
 static Material *Di2 = new Dielectric( 1.5);
 

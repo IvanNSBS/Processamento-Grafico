@@ -1,7 +1,7 @@
 #ifndef HITRECORDH
 #define HITRECORDH
 
-#include "../Vector/Vector3.cpp"
+#include "../../vec3.h"
 #include <limits>
 
 class Material;
@@ -9,10 +9,10 @@ class Object;
 
 struct HitRecord
 {
-    Vector3d nhit, phit;
-    double t = std::numeric_limits<double>::max();
+    vec3 nhit, phit;
+    float t = std::numeric_limits<float>::max();
     Material* mat;
-    Object* hitted; 
+    Object* hitted = nullptr; 
 };
 
 #endif
