@@ -39,7 +39,7 @@ public:
         return mult; 
     }
 
-    void multVecMatrix(const Vector3<T> &src, Vector3<T> &dst) const 
+    void mult_point_matrix(const Vector3<T> &src, Vector3<T> &dst) const 
     { 
         T a, b, c, w; 
 
@@ -55,7 +55,7 @@ public:
         //printf("(%f, %f, %f)\n", dst.x, dst.y, dst.z);
     } 
 
-    void multDirMatrix(const Vector3<T> &src, Vector3<T> &dst) const 
+    void mult_vec_matrix(const Vector3<T> &src, Vector3<T> &dst) const 
     { 
         T a, b, c; 
  

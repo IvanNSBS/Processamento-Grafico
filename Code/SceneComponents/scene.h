@@ -90,8 +90,8 @@ public:
 
                 //global illumination
                 if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-                    surfaceColor = sinfo.attenuation*sinfo.surface_col + trace(sinfo.r1, depth+1);
-                    // surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
+                    surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
+                    // surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);
 
                 if( true ){
                     for (unsigned i = 0; i < lights.size(); ++i) 
@@ -102,7 +102,7 @@ public:
                         last_rec.t = options.tmax;
                         for (unsigned j = 0; j < objects.size(); ++j)
                         { 
-                            if (objects[j]->material->matType != mat_type::light && objects[j] != hitted )
+                            if (objects[j] != hitted )
                             {
                                 Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
                                 HitRecord lrec;
@@ -111,20 +111,24 @@ public:
                                         last_rec = lrec;
                             } 
                         }
-                        if ( last_rec.hitted == nullptr ){
-                            //Vetor da reflexao da luz com a superficie
-                            vec3 R = reflect(lightDirection, rec.nhit);
+                        if ( last_rec.hitted != nullptr ){
+                            if(last_rec.hitted->material->matType != mat_type::light && last_rec.hitted->material->matType != mat_type::dielectric)
+                                surfaceColor *= last_rec.hitted->material->Kd;
+                            else if(last_rec.hitted->material->matType == mat_type::light)
+                                surfaceColor *= (last_rec.hitted->material->emissionColor * last_rec.hitted->material->lightIntensity);
+                            // //Vetor da reflexao da luz com a superficie
+                            // vec3 R = reflect(lightDirection, rec.nhit);
 
-                            //Fator difuso pelo modelo de iluminacao de Phong
-                            vec3 diffuse = hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                            std::max(float(0), dot(rec.nhit, lightDirection));
+                            // //Fator difuso pelo modelo de iluminacao de Phong
+                            // vec3 diffuse = hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                            // std::max(float(0), dot(rec.nhit, lightDirection));
 
-                            //Fator especular pelo modelo de iluminacao de Phong
-                            vec3 specular = lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                            pow(std::max(float(0), dot(R, r.getDirection()*-1)), hitted->material->alpha);
+                            // //Fator especular pelo modelo de iluminacao de Phong
+                            // vec3 specular = lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                            // pow(std::max(float(0), dot(R, r.getDirection()*-1)), hitted->material->alpha);
                                         
-                            //Aplica o modelo de iluminacao de Phong completo na surfaceColor
-                            surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks));
+                            // //Aplica o modelo de iluminacao de Phong completo na surfaceColor
+                            // surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks));
                         }
 
                     }
@@ -141,32 +145,37 @@ public:
                 if( true ){
                     for (unsigned i = 0; i < lights.size(); i++) 
                     { 
-                        vec3 transmission(1,1,1); 
                         vec3 lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
                         lightDirection.make_unit_vector(); 
+                        HitRecord last_rec;
+                        last_rec.t = options.tmax;
                         for (unsigned j = 0; j < objects.size(); j++)
                         { 
-                            if (objects[j]->material->matType != mat_type::light)
+                            if (objects[j] != hitted)
                             { 
                                 Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
                                 HitRecord lrec;
                                 if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
-                                {  
-                                    transmission = vec3(0,0,0);
-                                    break; 
-                                } 
+                                    if ( lrec.t < last_rec.t )
+                                        last_rec = lrec;
                             } 
                         }
-                        //Vetor da reflexao da luz com a superficie
-                        vec3 R = reflect(lightDirection, rec.nhit);
+                        if ( last_rec.hitted != nullptr ){
+                            if(last_rec.hitted->material->matType != mat_type::light && last_rec.hitted->material->matType != mat_type::dielectric)
+                                surfaceColor *= last_rec.hitted->material->Kd;
+                            else if(last_rec.hitted->material->matType == mat_type::light)
+                                surfaceColor *= (last_rec.hitted->material->emissionColor * last_rec.hitted->material->lightIntensity);
+                        }
+                        // //Vetor da reflexao da luz com a superficie
+                        // vec3 R = reflect(lightDirection, rec.nhit);
 
-                        //Fator difuso pelo modelo de iluminacao de Phong
-                        vec3 diffuse = 1.0 *   
-                        hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                        std::max(float(0), dot(rec.nhit, lightDirection));
+                        // //Fator difuso pelo modelo de iluminacao de Phong
+                        // vec3 diffuse = 1.0 *   
+                        // hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                        // std::max(float(0), dot(rec.nhit, lightDirection));
 
-                        vec3 specular = 1.0 * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                        pow(std::max(float(0), dot(R, r.getDirection()*-1)), hitted->material->alpha);
+                        // vec3 specular = 1.0 * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
+                        // pow(std::max(float(0), dot(R, r.getDirection()*-1)), hitted->material->alpha);
                                     
                         //Aplica o modelo de iluminacao de Phong completo na surfaceColor
                         // surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks))*transmission;
@@ -196,7 +205,7 @@ public:
             }
         }
         //Delimita o valor da cor entre 0 e 1
-        return (surfaceColor);// + (hitted->material->emissionColor * hitted->material->lightIntensity));
+        return (surfaceColor);// + (hitted->material->emissionColor * hitted->material->lightIntensity);
         // return vec3( clamp(surfaceColor.x, 0.0, 1.0), clamp(surfaceColor.y, 0.0, 1.0), 
                         //  clamp(surfaceColor.z, 0.0, 1.0) ) + (hitted->material->emissionColor * hitted->material->lightIntensity);
     }

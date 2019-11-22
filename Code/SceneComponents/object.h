@@ -15,8 +15,8 @@
 #include <fstream>
 #include <string>
 #include <cstring>
-#include "../../vec2f.h"
-#include "../../matrix44.h"
+#include "vec2.h"
+#include "matrix44.h"
 
 #define min_x 0
 #define max_x 1
@@ -37,10 +37,10 @@ vec3 random_in_unit_sphere() {
     return p;
 }
 
-float drand48()
-{
-    return distributor(generator);
-}
+// float drand48()
+// {
+//     return distributor(generator);
+// }
 
 //O objeto é uma esfera.
 
@@ -110,10 +110,10 @@ class Sphere : public Object
 struct Triangle {
 public:
 	vec3 vert[3];
-	vec2f uv[3];
+	vec2 uv[3];
 	vec3 normal[3];
 
-	Triangle( const std::vector<vec3> v, const std::vector<vec2f> t, const std::vector<vec3> n)
+	Triangle( const std::vector<vec3> v, const std::vector<vec2> t, const std::vector<vec3> n)
 	{
 		vert[0] = v[0];
 		vert[1] = v[1];
@@ -152,15 +152,15 @@ public:
 					0, 0, 1, 0,
 					tl.x(), tl.y(), tl.z(), 1);
 		for ( Triangle &tri : tris) {
-			tr.multVecMatrix(tri.vert[0], tri.vert[0]);
-			tr.multVecMatrix(tri.vert[1], tri.vert[1]);
-			tr.multVecMatrix(tri.vert[2], tri.vert[2]);
+			tr.mult_point_matrix(tri.vert[0], tri.vert[0]);
+			tr.mult_point_matrix(tri.vert[1], tri.vert[1]);
+			tr.mult_point_matrix(tri.vert[2], tri.vert[2]);
 
-			// tr.multDirMatrix(tri.normal[0], tri.normal[0]);
-			// tr.multDirMatrix(tri.normal[1], tri.normal[1]);
-			// tr.multDirMatrix(tri.normal[2], tri.normal[2]);
+			// tr.mult_vec_matrix(tri.normal[0], tri.normal[0]);
+			// tr.mult_vec_matrix(tri.normal[1], tri.normal[1]);
+			// tr.mult_vec_matrix(tri.normal[2], tri.normal[2]);
 		}
-		tr.multVecMatrix(bbox_center, bbox_center);
+		tr.mult_point_matrix(bbox_center, bbox_center);
 	}
 
     void scale( const vec3 &t ) {
@@ -169,15 +169,15 @@ public:
 					0, 0, t.z(), 0,
 					0, 0, 0, 1);
 		for ( Triangle &tri : tris) {
-			tr.multVecMatrix(tri.vert[0], tri.vert[0]);
-			tr.multVecMatrix(tri.vert[1], tri.vert[1]);
-			tr.multVecMatrix(tri.vert[2], tri.vert[2]);
+			tr.mult_point_matrix(tri.vert[0], tri.vert[0]);
+			tr.mult_point_matrix(tri.vert[1], tri.vert[1]);
+			tr.mult_point_matrix(tri.vert[2], tri.vert[2]);
 
-			// tr.multVecMatrix(tri.normal[0], tri.normal[0]);
-			// tr.multVecMatrix(tri.normal[1], tri.normal[1]);
-			// tr.multVecMatrix(tri.normal[2], tri.normal[2]);
+			// tr.mult_point_matrix(tri.normal[0], tri.normal[0]);
+			// tr.mult_point_matrix(tri.normal[1], tri.normal[1]);
+			// tr.mult_point_matrix(tri.normal[2], tri.normal[2]);
 		}
-		tr.multVecMatrix(bbox_center, bbox_center);
+		tr.mult_point_matrix(bbox_center, bbox_center);
 	}
 
     void rot_x(float deg) {
@@ -196,15 +196,15 @@ public:
 		matrix44 result = (tr*rot)*itr;
 
 		for ( Triangle &tri : tris) {
-			result.multVecMatrix(tri.vert[0], tri.vert[0]);
-			result.multVecMatrix(tri.vert[1], tri.vert[1]);
-			result.multVecMatrix(tri.vert[2], tri.vert[2]);
+			result.mult_point_matrix(tri.vert[0], tri.vert[0]);
+			result.mult_point_matrix(tri.vert[1], tri.vert[1]);
+			result.mult_point_matrix(tri.vert[2], tri.vert[2]);
 
-			result.multDirMatrix(tri.normal[0], tri.normal[0]);
-			result.multDirMatrix(tri.normal[1], tri.normal[1]);
-			result.multDirMatrix(tri.normal[2], tri.normal[2]);
+			result.mult_vec_matrix(tri.normal[0], tri.normal[0]);
+			result.mult_vec_matrix(tri.normal[1], tri.normal[1]);
+			result.mult_vec_matrix(tri.normal[2], tri.normal[2]);
 		}
-		result.multVecMatrix(bbox_center, bbox_center);
+		result.mult_point_matrix(bbox_center, bbox_center);
 	}
 
     void rot_y(float deg) {
@@ -223,15 +223,15 @@ public:
 		matrix44 result = (tr*rot)*itr;
 
 		for ( Triangle &tri : tris) {
-			result.multVecMatrix(tri.vert[0], tri.vert[0]);
-			result.multVecMatrix(tri.vert[1], tri.vert[1]);
-			result.multVecMatrix(tri.vert[2], tri.vert[2]);
+			result.mult_point_matrix(tri.vert[0], tri.vert[0]);
+			result.mult_point_matrix(tri.vert[1], tri.vert[1]);
+			result.mult_point_matrix(tri.vert[2], tri.vert[2]);
 
-			result.multDirMatrix(tri.normal[0], tri.normal[0]);
-			result.multDirMatrix(tri.normal[1], tri.normal[1]);
-			result.multDirMatrix(tri.normal[2], tri.normal[2]);
+			result.mult_vec_matrix(tri.normal[0], tri.normal[0]);
+			result.mult_vec_matrix(tri.normal[1], tri.normal[1]);
+			result.mult_vec_matrix(tri.normal[2], tri.normal[2]);
 		}
-		result.multVecMatrix(bbox_center, bbox_center);
+		result.mult_point_matrix(bbox_center, bbox_center);
 
 	}
 
@@ -251,15 +251,15 @@ public:
 		matrix44 result = (tr*rot)*itr;
 
 		for ( Triangle &tri : tris) {
-			result.multVecMatrix(tri.vert[0], tri.vert[0]);
-			result.multVecMatrix(tri.vert[1], tri.vert[1]);
-			result.multVecMatrix(tri.vert[2], tri.vert[2]);
+			result.mult_point_matrix(tri.vert[0], tri.vert[0]);
+			result.mult_point_matrix(tri.vert[1], tri.vert[1]);
+			result.mult_point_matrix(tri.vert[2], tri.vert[2]);
             
-			result.multDirMatrix(tri.normal[0], tri.normal[0]);
-			result.multDirMatrix(tri.normal[1], tri.normal[1]);
-			result.multDirMatrix(tri.normal[2], tri.normal[2]);
+			result.mult_vec_matrix(tri.normal[0], tri.normal[0]);
+			result.mult_vec_matrix(tri.normal[1], tri.normal[1]);
+			result.mult_vec_matrix(tri.normal[2], tri.normal[2]);
 		}
-		result.multVecMatrix(bbox_center, bbox_center);
+		result.mult_point_matrix(bbox_center, bbox_center);
 
 	}
 
@@ -339,7 +339,7 @@ public:
 
 		std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 		std::vector< vec3 > temp_vertices;
-		std::vector< vec2f > temp_uvs;
+		std::vector< vec2 > temp_uvs;
 		std::vector< vec3 > temp_normals;
 
 		std::ifstream f(path);
@@ -366,7 +366,7 @@ public:
 			{
 				if (line[1] == 't') 
 				{
-					vec2f uv;
+					vec2 uv;
 					s >> junk >> junk >> uv[0] >> uv[1];
 					temp_uvs.push_back(uv);
 				}
@@ -469,7 +469,7 @@ public:
 			vertices.push_back(temp_vertices[v2 - 1]);
 			vertices.push_back(temp_vertices[v3 - 1]);
 
-			std::vector<vec2f> uvs;
+			std::vector<vec2> uvs;
 			if( uvIndices.size() > 0 ){
 				uvs.push_back(temp_uvs[uv1 - 1]);
 				uvs.push_back(temp_uvs[uv2 - 1]);

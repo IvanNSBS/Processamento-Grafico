@@ -1,7 +1,7 @@
 #ifndef HITRECORDH
 #define HITRECORDH
 
-#include "../../vec3.h"
+#include "vec3.h"
 #include <limits>
 
 class Material;

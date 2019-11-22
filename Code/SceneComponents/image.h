@@ -3,7 +3,7 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
-#include "../../vec3.h"
+#include "vec3.h"
 
 
 // source channel, target channel, width, height, radius
@@ -74,25 +74,6 @@ public:
         }
         ofs.close();
 
-        
-        for (int i = 0; i < height; i++){
-            for(int j = 0; j < width; j++){
-                float L = buffer[i*width+j].get_luminance();
-                float Lo = L / (L+1.0f);
-                buffer[i*width+j] = (buffer[i*width+j]*Lo)/L;
-            }
-        }    
-
-        // Save result to a PPM image (keep these flags if you compile under Windows)
-        std::ofstream ofs2(filepath + filename + "_tonemapped.ppm", std::ios::out | std::ios::binary); 
-        ofs2 << "P6\n" << width << " " << height << "\n255\n"; 
-        for (unsigned i = 0; i < width * height; ++i)
-        { 
-            ofs2 <<  (unsigned char)(std::min(float(1), (float)buffer[i].x()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].y()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].z()) * 255.0 ); 
-        }
-        ofs2.close();
 
 
         /*
@@ -105,51 +86,58 @@ public:
             (0.2126*x1 + 0.7152*y1 + 0.0722*z1) = 0.6*(0.2126*x + 0.7152*y + 0.0722*z)/3
         */
 
+        // for (int i = 0; i < height; i++){
+        //     for(int j = 0; j < width; j++){
+        //         float L = buffer[i*width+j].get_luminance();
+        //         float Lo = L / (L+1.0f);
+        //         buffer[i*width+j] = (buffer[i*width+j]*Lo)/L;
+        //     }
+        // }    
+
         std::vector<vec3> filtered;
         filtered.reserve(width*height);
 
         for(int i = 0; i < height; i++)
             for(int j = 0; j < width; j++)
-                filtered[i*width+j] = (buffer[i*width+j].get_luminance() <= 0.9 ? vec3(0,0,0) : buffer[i*width+j]);
+                filtered[i*width+j] = (buffer[i*width+j].get_luminance() <= 1.2f ? vec3(0,0,0) : buffer[i*width+j]);
 
         std::vector<vec3> blurred;
         gaussBlur_1(filtered, blurred, this->width, this->height, 3.0f);
 
+        // Save result to a PPM image (keep these flags if you compile under Windows)
+        std::ofstream ofs2(filepath + filename + "_filtered.ppm", std::ios::out | std::ios::binary); 
+        ofs2 << "P6\n" << width << " " << height << "\n255\n"; 
+        for (unsigned i = 0; i < width * height; ++i)
+        { 
+            ofs2 << (unsigned char)(std::min(float(1), (float)filtered[i].x()) * 255.0 ) << 
+                    (unsigned char)(std::min(float(1), (float)filtered[i].y()) * 255.0 ) << 
+                    (unsigned char)(std::min(float(1), (float)filtered[i].z()) * 255.0 ); 
+        }
+        ofs2.close();
+
+
+        std::ofstream ofs_blur(filepath + filename + "_blurred.ppm", std::ios::out | std::ios::binary); 
+        ofs_blur << "P6\n" << width << " " << height << "\n255\n"; 
+        for (unsigned i = 0; i < width * height; ++i)
+        { 
+            ofs_blur << (unsigned char)(std::min(float(1), (float)blurred[i].x()) * 255.0 ) << 
+                        (unsigned char)(std::min(float(1), (float)blurred[i].y()) * 255.0 ) << 
+                        (unsigned char)(std::min(float(1), (float)blurred[i].z()) * 255.0 ); 
+        }
+        ofs_blur.close();
+
 
         for(int i = 0; i < height; i++)
             for(int j = 0 ; j < width; j++)
-                if( blurred[i*width+j].length() > 0.0 ){
+                if( blurred[i*width+j].length() > 0.001f ){
                     buffer[i*width+j] = (blurred[i*width+j] + buffer[i*width+j]);
-                    float Lo = (buffer[i*width+j].get_luminance()/(buffer[i*width+j].get_luminance() + 1.0));
-                    float L = buffer[i*width+j].get_luminance();
-                    // std::cout << "L = " << buffer[i].get_luminance() << "\t";
-                    // std::cout << "Lo = " << (buffer[i].get_luminance()/(buffer[i].get_luminance() + 3.0)) << "\n";
-                    // std::cout << "Col = " << buffer[i] << "\n";
-                    buffer[i*width+j] = vec3( (buffer[i*width+j].x() * Lo)/(L), (buffer[i*width+j].y() * Lo)/(L), (buffer[i*width+j].z() * Lo)/(L));
+                    // float Lo = (buffer[i*width+j].get_luminance()/(buffer[i*width+j].get_luminance() + 1.0));
+                    // float L = buffer[i*width+j].get_luminance();
+                    // // std::cout << "L = " << buffer[i].get_luminance() << "\t";
+                    // // std::cout << "Lo = " << (buffer[i].get_luminance()/(buffer[i].get_luminance() + 3.0)) << "\n";
+                    // // std::cout << "Col = " << buffer[i] << "\n";
+                    // buffer[i*width+j] = vec3( (buffer[i*width+j].x() * Lo)/(L), (buffer[i*width+j].y() * Lo)/(L), (buffer[i*width+j].z() * Lo)/(L));
                 }
-
-        // float bX = -1;
-        // float bY = -1;
-        // float bZ = -1;
-        // for(int i = 0; i < height; i++){
-        //     for(int j = 0 ; j < width; j++){
-
-        //         if( bX < buffer[i*width+j].x )
-        //             bX = buffer[i*width+j].x;
-
-        //         if( bX < buffer[i*width+j].y )
-        //             bX = buffer[i*width+j].y;
-
-        //         if( bX < buffer[i*width+j].z )
-        //             bX = buffer[i*width+j].z;
-        //     }
-        // }
-
-        // for(int i = 0; i < height; i++){
-        //     for(int j = 0 ; j < width; j++){
-        //         buffer[i*width+j] = vec3(buffer[i*width+j].x/bX, buffer[i*width+j].y/bX, buffer[i*width+j].z/bX);
-        //     }
-        // }
 
         /*
         L = 0.262826    Lo = 0.208125

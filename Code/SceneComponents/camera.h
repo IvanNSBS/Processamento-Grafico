@@ -1,17 +1,17 @@
 #pragma once
 
-#include "../../vec3.h"
+#include "vec3.h"
 #include "ray.h"
-#include "../../matrix44.h"
+#include "matrix44.h"
 #include "image.h"
 #include <cmath>
 
 #define M_PI 3.141592653589793
 
-float random()
-{
-    return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-}
+// float random()
+// {
+//     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+// }
 
 vec3 Rand_In_Disk()
 {
@@ -111,8 +111,8 @@ public:
 
         vec3 origin = vec3(0,0,0);
         vec3 dir = vec3(Px, Py, -1) - origin;
-        camToWorld.multVecMatrix(origin, origin);
-        camToWorld.multDirMatrix(dir, dir);
+        camToWorld.mult_point_matrix(origin, origin);
+        camToWorld.mult_vec_matrix(dir, dir);
         dir.make_unit_vector();
         return Ray(origin , dir);
     }

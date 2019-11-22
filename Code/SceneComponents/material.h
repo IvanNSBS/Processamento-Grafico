@@ -1,7 +1,7 @@
 #ifndef MATERIALH
 #define MATERIALH
 
-#include "../../vec3.h"
+#include "vec3.h"
 #include "ray.h"
 #include <iostream>
 #include <random>
