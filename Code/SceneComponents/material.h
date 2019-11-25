@@ -142,7 +142,7 @@ class Conductor : public Material{
             sinfo.surface_col = this->surfaceColor;
             // sinfo.kr = 1;
             // sinfo.ior = 1;
-            return true;
+            return dot(reflectionDirection, nhit) > 0.0001f;
         }
 
         vec3 albedo = vec3(0);
@@ -163,6 +163,7 @@ class Dielectric : public Material{
             fresnel(dir, nhit, ref_idx, kr); 
             bool outside = dot(dir, nhit) < 0;
             vec3 vbias = nhit * bias;
+            
             if(kr < 1)
             {
                 vec3 refractionDirection = unit_vector(refract(dir, nhit, ref_idx)); 
@@ -173,6 +174,7 @@ class Dielectric : public Material{
             vec3 reflectionDirection = unit_vector(reflect(dir, nhit)); 
             vec3 reflectionRayOrig = ( dot(reflectionDirection, nhit) < 0) ? phit - vbias : phit + vbias; 
 
+            sinfo.attenuation = vec3(1.0f, 1.0f, 1.0f);
             sinfo.ior = ref_idx;
             sinfo.kr = kr;
             sinfo.r1 = Ray(reflectionRayOrig, reflectionDirection);

@@ -114,14 +114,15 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
         }
         getline(file, str);
     }
-    // string name = "Red";
-    // scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
+    string name = "White";
+    scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
+    // scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(0), findMat(mlist, name ), "./monkey_smooth.obj"));
     return;
 }
 
 int main(int argc, char **argv) 
 { 
-    //Para compilar: g++ -o r -std=c++14 -pthread main.cpp
+    //Para compilar: g++ -o r.exe -std=c++14 -pthread main.cpp
     Scene *scene = new Scene();
     std::string filename;
     readFile(scene, "cornellbox.txt", filename);

@@ -189,9 +189,9 @@ public:
                 hitted->material->scatter(r, rec.phit, rec.nhit, sinfo);
                 float chance = random_01();
                 if( chance <= 0.34)
-                    surfaceColor = trace(sinfo.r1, depth + 1); 
+                    surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth + 1); 
                 else
-                    surfaceColor = trace(sinfo.r2, depth + 1);
+                    surfaceColor = sinfo.attenuation*trace(sinfo.r2, depth + 1);
                 // vec3 refractionColor = trace(sinfo.r2, depth + 1);
                 // surfaceColor = ((reflectionColor * sinfo.kr) + (refractionColor * (1 - sinfo.kr))) * hitted->material->surfaceColor; 
                 break; 
