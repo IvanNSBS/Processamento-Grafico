@@ -155,7 +155,7 @@ public:
 		}
 		vec3 v2v0 = unit_vector(verts[2] - verts[0]);
 		vec3 v1v0 = unit_vector(verts[1] - verts[0]);
-		vec3 n_front = cross(v2v0, v1v0);
+		vec3 n_front = -cross(v2v0, v1v0);
 		vec3 v5v1 = unit_vector(verts[5] - verts[1]);
 		vec3 v4v1 = unit_vector(verts[4] - verts[1]);
 		vec3 n_right = cross(v5v1, v4v1);
@@ -181,52 +181,52 @@ public:
 
 		std::vector<vec2> vts = { vec2(0,0), vec2(0,0) };
 
-		std::vector<vec3> front1 = {verts[0], verts[2], verts[1] };
+		std::vector<vec3> front1 = {verts[2], verts[1], verts[0] };
 		std::vector<vec3> front2 = {verts[0], verts[3], verts[2] };
-		std::vector<vec3> n_front1 = { n_v0, n_v2, n_v1 };
+		std::vector<vec3> n_front1 = { n_v2, n_v1, n_v0 };
 		std::vector<vec3> n_front2 = { n_v0, n_v3, n_v2 };
 		v_bbox.emplace_back(front1, vts, n_front1);
 		v_bbox.emplace_back(front2, vts, n_front2);
 
 
-		// std::vector<vec3> back1 = {verts[7], verts[6], verts[5] };
-		// std::vector<vec3> back2 = {verts[7], verts[5], verts[4] };
-		// std::vector<vec3> n_back1 = { n_v7, n_v6, n_v5 };
-		// std::vector<vec3> n_back2 = { n_v7, n_v5, n_v4 };
-		// v_bbox.emplace_back(back1, vts, n_back1);
-		// v_bbox.emplace_back(back2, vts, n_back2);
+		std::vector<vec3> back1 = {verts[7], verts[6], verts[5] };
+		std::vector<vec3> back2 = {verts[5], verts[4], verts[7] };
+		std::vector<vec3> n_back1 = { n_v7, n_v6, n_v5 };
+		std::vector<vec3> n_back2 = { n_v5, n_v4, n_v7 };
+		v_bbox.emplace_back(back1, vts, n_back1);
+		v_bbox.emplace_back(back2, vts, n_back2);
 
 
-		// std::vector<vec3> right1 = {verts[1], verts[5], verts[4] };
-		// std::vector<vec3> right2 = {verts[1], verts[2], verts[5] };
-		// std::vector<vec3> n_right1 = { n_v1, n_v5, n_v4 };
-		// std::vector<vec3> n_right2 = { n_v1, n_v2, n_v5 };
-		// v_bbox.emplace_back(right1, vts, n_right1);
-		// v_bbox.emplace_back(right2, vts, n_right2);
+		std::vector<vec3> right1 = {verts[5], verts[4], verts[1] };
+		std::vector<vec3> right2 = {verts[1], verts[2], verts[5] };
+		std::vector<vec3> n_right1 = { n_v5, n_v4, n_v1 };
+		std::vector<vec3> n_right2 = { n_v1, n_v2, n_v5 };
+		v_bbox.emplace_back(right1, vts, n_right1);
+		v_bbox.emplace_back(right2, vts, n_right2);
 
 
-		// std::vector<vec3> left1 = {verts[0], verts[3], verts[6] };
-		// std::vector<vec3> left2 = {verts[0], verts[6], verts[7] };
-		// std::vector<vec3> n_left1 = { n_v0, n_v3, n_v6 };
-		// std::vector<vec3> n_left2 = { n_v0, n_v6, n_v7 };
-		// v_bbox.emplace_back(left1, vts, n_left1);
-		// v_bbox.emplace_back(left2, vts, n_left2);
+		std::vector<vec3> left1 = {verts[0], verts[3], verts[6] };
+		std::vector<vec3> left2 = {verts[6], verts[7], verts[0] };
+		std::vector<vec3> n_left1 = { n_v0, n_v3, n_v6 };
+		std::vector<vec3> n_left2 = { n_v6, n_v7, n_v0 };
+		v_bbox.emplace_back(left1, vts, n_left1);
+		v_bbox.emplace_back(left2, vts, n_left2);
 
 
-		// std::vector<vec3> top1 = {verts[3], verts[6], verts[5] };
-		// std::vector<vec3> top2 = {verts[3], verts[5], verts[2] };
-		// std::vector<vec3> n_top1 = { n_v3, n_v6, n_v5 };
-		// std::vector<vec3> n_top2 = { n_v3, n_v5, n_v2 };
-		// v_bbox.emplace_back(top1, vts, n_top1);
-		// v_bbox.emplace_back(top2, vts, n_top2);
+		std::vector<vec3> top1 = {verts[3], verts[6], verts[5] };
+		std::vector<vec3> top2 = {verts[5], verts[2], verts[3] };
+		std::vector<vec3> n_top1 = { n_v3, n_v6, n_v5 };
+		std::vector<vec3> n_top2 = { n_v5, n_v2, n_v3 };
+		v_bbox.emplace_back(top1, vts, n_top1);
+		v_bbox.emplace_back(top2, vts, n_top2);
 
 
-		// std::vector<vec3> bottom1 = {verts[0], verts[7], verts[4] };
-		// std::vector<vec3> bottom2 = {verts[0], verts[4], verts[1] };
-		// std::vector<vec3> n_bottom1 = { n_v0, n_v7, n_v4 };
-		// std::vector<vec3> n_bottom2 = { n_v0, n_v4, n_v1 };
-		// v_bbox.emplace_back(bottom1, vts, n_bottom1);
-		// v_bbox.emplace_back(bottom2, vts, n_bottom2);
+		std::vector<vec3> bottom1 = {verts[0], verts[7], verts[4] };
+		std::vector<vec3> bottom2 = {verts[4], verts[1], verts[0] };
+		std::vector<vec3> n_bottom1 = { n_v0, n_v7, n_v4 };
+		std::vector<vec3> n_bottom2 = { n_v4, n_v1, n_v0 };
+		v_bbox.emplace_back(bottom1, vts, n_bottom1);
+		v_bbox.emplace_back(bottom2, vts, n_bottom2);
 	}
 
     void translate(vec3 tl) {
@@ -432,7 +432,19 @@ public:
         const float EPSILON = 0.0000001;
         rec.t = tmax;
         bool intersect = false;
+		bool interesct_bbox = false;
 		for ( Triangle tr : this->v_bbox){
+            HitRecord ph;
+            if(intersect_triangle( tr, r, ph )){
+                interesct_bbox = true;
+                if (rec.t > ph.t && ph.t > tmin && ph.t < tmax)
+                    rec = ph;
+            }
+        }
+		if(!interesct_bbox)
+			return false;
+			
+        for ( Triangle tr : this->tris){
             HitRecord ph;
             if(intersect_triangle( tr, r, ph )){
                 intersect = true;
@@ -440,15 +452,6 @@ public:
                     rec = ph;
             }
         }
-
-        // for ( Triangle tr : this->tris){
-        //     HitRecord ph;
-        //     if(intersect_triangle( tr, r, ph )){
-        //         intersect = true;
-        //         if (rec.t > ph.t && ph.t > tmin && ph.t < tmax)
-        //             rec = ph;
-        //     }
-        // }
         return intersect;
     }
 
@@ -635,7 +638,7 @@ public:
 		vec3 v2(Mx, My, Mz);
 		vec3 v3(mx, My, Mz);
 		vec3 v4(Mx, my, mz);
-		vec3 v5(Mx, my, mz);
+		vec3 v5(Mx, My, mz);
 		vec3 v6(mx, My, mz);
 		vec3 v7(mx, my, mz);
 		std::vector<vec3> verts = {v0, v1, v2, v3, v4, v5, v6, v7};
