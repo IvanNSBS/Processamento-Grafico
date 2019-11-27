@@ -142,6 +142,7 @@ class Conductor : public Material{
             sinfo.surface_col = this->surfaceColor;
             // sinfo.kr = 1;
             // sinfo.ior = 1;
+            // return true;
             return dot(reflectionDirection, nhit) > 0.0001f;
         }
 

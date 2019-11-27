@@ -432,19 +432,19 @@ public:
         const float EPSILON = 0.0000001;
         rec.t = tmax;
         bool intersect = false;
+
 		bool interesct_bbox = false;
 		for ( Triangle tr : this->v_bbox){
             HitRecord ph;
             if(intersect_triangle( tr, r, ph )){
                 interesct_bbox = true;
-                if (rec.t > ph.t && ph.t > tmin && ph.t < tmax)
-                    rec = ph;
+				break;
             }
         }
 		if(!interesct_bbox)
 			return false;
 			
-        for ( Triangle tr : this->tris){
+        for ( const Triangle &tr : this->tris){
             HitRecord ph;
             if(intersect_triangle( tr, r, ph )){
                 intersect = true;
