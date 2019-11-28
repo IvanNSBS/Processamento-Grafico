@@ -111,11 +111,33 @@ class Diffuse : public Material {
     //scatter joga um raio em uma direcao aleatoria
     //baseada no local de impacto do raio incidente
     virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const  {
-        vec3 target = phit + nhit + random_in_unit_sphere();
-        sinfo.r1 = Ray(phit, target-phit);
-        sinfo.attenuation = albedo;
-        sinfo.surface_col = this->surfaceColor;
-        return true;
+
+        if(drand48() > Ks.x() ){
+            vec3 target = phit + nhit + random_in_unit_sphere();
+            sinfo.r1 = Ray(phit, target-phit);
+            sinfo.attenuation = albedo;
+            sinfo.surface_col = this->surfaceColor;
+            return true;
+        }
+        else
+        {
+            float bias = 1e-4;
+            vec3 rdir = r_in.getDirection();
+            vec3 reflectionDirection = reflect(rdir, nhit); 
+            vec3 reflectionRayOrig = (dot(reflectionDirection, nhit) < 0) ? 
+                phit + nhit * bias : 
+                phit - nhit * bias; 
+            sinfo.r1 = (Ray(reflectionRayOrig, reflectionDirection + random_in_unit_sphere()*Ks.y())); 
+            sinfo.r2 = Ray(0,0);
+            sinfo.attenuation = albedo;
+            sinfo.surface_col = this->surfaceColor;
+
+            // return dot(reflectionDirection, r_in.getDirection()) < 0;
+            // sinfo.kr = 1;
+            // sinfo.ior = 1;
+            return true;
+        }
+        
     }
     
     vec3 albedo = vec3(0);

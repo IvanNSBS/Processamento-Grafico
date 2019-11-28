@@ -99,7 +99,7 @@ public:
 
         for(int i = 0; i < height; i++)
             for(int j = 0; j < width; j++)
-                filtered[i*width+j] = (buffer[i*width+j].get_luminance() <= 1.2f ? vec3(0,0,0) : buffer[i*width+j]);
+                filtered[i*width+j] = (buffer[i*width+j].get_luminance() <= 1.0f ? vec3(0,0,0) : buffer[i*width+j]);
 
         std::vector<vec3> blurred;
         gaussBlur_1(filtered, blurred, this->width, this->height, 3.0f);
