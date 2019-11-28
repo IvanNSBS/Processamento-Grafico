@@ -18,7 +18,9 @@ enum mat_type{ lambertian, conductor, dielectric, light };
 
 //Calcula o vetor apos a reflexao com a superficie
 vec3 reflect( vec3 &v, const vec3& n) {
-     return v - (n * (2*dot(v, n)));
+
+    return unit_vector( unit_vector(n)+unit_vector(v));
+    //  return v - (n * (2*dot(v, n)));
 }
 
 float limit(const float& a, const float &min, const float &max)
