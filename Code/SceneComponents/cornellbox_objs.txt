@@ -16,18 +16,18 @@ Diffuse 0.800000 0.038828 0.038828 0.800000 0.038828 0.038828 0.2 1.0 0.0 1.0 Re
 Diffuse 0.022108 0.800000 0.068285 0.022108 0.800000 0.068285 0.2 1.0 0.0 1.0 Green
 Diffuse 0.696279 0.800000 0.753041 0.696279 0.800000 0.753041 0.35 0.1 0.0 1.0 WhiteFloor
 Diffuse 0.696279 0.800000 0.753041 0.696279 0.800000 0.753041 0.0 0.0 0.0 1.0 White
-# Conductor 0.25 0.25 0.25 0.4 0.4 0.4 0.774597 0.774597 0.774597 76.8 0.0 Chrome
+Conductor 0.25 0.25 0.25 0.4 0.4 0.4 0.774597 0.774597 0.774597 76.8 0.0 Chrome
 
 Dielectric 2.437 1.0 1.0 1.0 Di
 Dielectric 1.5 1.0 1.0 1.0 Dii
-Light 1.0 1.0 1.0 1.0 LSource
+Light 1.0 1.0 1.0 3.0 LSource
 
 #Objects (apenas esferas)
 Sphere 0.0 2.0 0.0  0.15 LSource
-#Sphere 0.6 0.3 -0.2 0.3 Red
+Sphere 0.6 0.3 -0.2 0.3 Chrome
 #Sphere 12.0 12.8 -25.0 4.0 LSource
 
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
 
 #FileName(salvo na pasta RenderedImages)
-Filename HD_CornellBox_Blinn_22_obstructed
+Filename HD_CornellBox_Blinn_22_obstructed_final

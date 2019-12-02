@@ -220,7 +220,7 @@ class Light : public Material{
                 }
         virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const 
         { return false; }
-        virtual vec3 emmited() const{ return emissionColor*lightIntensity; }
+        virtual vec3 emmited() const{ return surfaceColor*lightIntensity; }
 };
 
 static Material *Chrome = new Conductor(vec3(0.25), vec3(0.4), vec3(0.774597), 76.8, 0.3);
