@@ -91,10 +91,10 @@ public:
 
                 //global illumination
                 if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-                    surfaceColor = sinfo.attenuation*trace(sinfo.r1, depth+1);
+                    surfaceColor = hitted->material->emissionColor*hitted->material->emissionColor + sinfo.attenuation*trace(sinfo.r1, depth+1);
                     // surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);
 
-                if( true ){
+                if( false ){
                     for (unsigned i = 0; i < lights.size(); ++i) 
                     { 
                         vec3 lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
@@ -114,22 +114,7 @@ public:
                         }
                         if ( last_rec.hitted != nullptr ){
                             if(last_rec.hitted->material->matType != mat_type::light && last_rec.hitted->material->matType != mat_type::dielectric)
-                                surfaceColor *= last_rec.hitted->material->Kd;
-                            else if(last_rec.hitted->material->matType == mat_type::light)
-                                surfaceColor *= (last_rec.hitted->material->emissionColor * last_rec.hitted->material->lightIntensity);
-                            // //Vetor da reflexao da luz com a superficie
-                            // vec3 R = reflect(lightDirection, rec.nhit);
-
-                            // //Fator difuso pelo modelo de iluminacao de Phong
-                            // vec3 diffuse = hitted->material->surfaceColor * lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                            // std::max(float(0), dot(rec.nhit, lightDirection));
-
-                            // //Fator especular pelo modelo de iluminacao de Phong
-                            // vec3 specular = lights[i]->material->emissionColor * lights[i]->material->lightIntensity * 
-                            // pow(std::max(float(0), dot(R, r.getDirection()*-1)), hitted->material->alpha);
-                                        
-                            // //Aplica o modelo de iluminacao de Phong completo na surfaceColor
-                            // surfaceColor += ((diffuse * hitted->material->Kd) + (specular * hitted->material->Ks));
+                                surfaceColor *= (last_rec.t / ((last_rec.phit - lights[i]->center).length()));
                         }
 
                     }
@@ -231,7 +216,7 @@ public:
                     col = col + trace( camera->GetRay( x + random_01(), y + random_01()), 0 );
                 }
                 float ns = float(rayNum);
-                col = vec3 (col.r()/ns, col.g()/ns, col.b()/ns);
+                col = vec3 ( sqrt(col.r()/ns), sqrt(col.g()/ns), sqrt(col.b()/ns));
                 this->camera->canvas->SetPixel( x, y, col );  //seta a cor do pixel para a coordenada
             }
         

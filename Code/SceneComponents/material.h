@@ -19,9 +19,20 @@ enum mat_type{ lambertian, conductor, dielectric, light };
 //Calcula o vetor apos a reflexao com a superficie
 vec3 reflect( vec3 &v, const vec3& n) {
 
-    return unit_vector( unit_vector(n)+unit_vector(v));
-    //  return v - (n * (2*dot(v, n)));
+    // return unit_vector( unit_vector(n)+unit_vector(v));
+     return v - (n * (2*dot(v, n)));
 }
+
+struct ScatterInfo
+{
+    Ray r1;//reflection
+    Ray r2;//refraction
+    vec3 attenuation;
+    vec3 surface_col;
+    float ior;
+    float kr;
+};
+
 
 float limit(const float& a, const float &min, const float &max)
 {
@@ -66,16 +77,6 @@ vec3 refract(vec3 &I, const vec3 &N, const float &ior)
     return k < 0 ? 0 : (I*eta) + (n*(eta * cosi - sqrtf(k))); 
 }
 
-struct ScatterInfo
-{
-    Ray r1;//reflection
-    Ray r2;//refraction
-    vec3 attenuation;
-    vec3 surface_col;
-    float ior;
-    float kr;
-};
-
 struct Material
 {
     public:
@@ -84,7 +85,7 @@ struct Material
     float ior, alpha;
     mat_type matType;
     std::string matName;
-    float lightIntensity;
+    float lightIntensity = 0;
 
     Material();
     //Construtor para fonte de luz
@@ -98,6 +99,9 @@ struct Material
     //Funcao que calcula o raio resultante da reflexao/refracao
     //virtual, pois cada material tem suas regras de reflexao/refracao
     virtual bool scatter(const Ray &r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const = 0;
+    virtual vec3 emmited() const{
+        return vec3(0,0,0);
+    }
 
 };
 
@@ -126,18 +130,15 @@ class Diffuse : public Material {
             float bias = 1e-4;
             vec3 rdir = r_in.getDirection();
             vec3 reflectionDirection = reflect(rdir, nhit); 
-            vec3 reflectionRayOrig = (dot(reflectionDirection, nhit) < 0) ? 
-                phit + nhit * bias : 
-                phit - nhit * bias; 
-            sinfo.r1 = (Ray(reflectionRayOrig, reflectionDirection + random_in_unit_sphere()*Ks.y())); 
+            sinfo.r1 = (Ray(phit, reflectionDirection + random_in_unit_sphere()*Ks.y())); 
             sinfo.r2 = Ray(0,0);
-            sinfo.attenuation = albedo;
-            sinfo.surface_col = this->surfaceColor;
+            sinfo.attenuation = surfaceColor;
+            sinfo.surface_col = surfaceColor;
 
             // return dot(reflectionDirection, r_in.getDirection()) < 0;
             // sinfo.kr = 1;
             // sinfo.ior = 1;
-            return true;
+            return (dot(sinfo.r1.getDirection(), nhit) > 0);
         }
         
     }
@@ -215,9 +216,11 @@ class Light : public Material{
         Light(const vec3 &ec, const float &str = 1,
               const std::string &name = ""):Material(ec){
                   surfaceColor = ec; matType = mat_type::light; matName = name; 
-                  lightIntensity = str;}
+                  lightIntensity = str;
+                }
         virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const 
         { return false; }
+        virtual vec3 emmited() const{ return emissionColor*lightIntensity; }
 };
 
 static Material *Chrome = new Conductor(vec3(0.25), vec3(0.4), vec3(0.774597), 76.8, 0.3);

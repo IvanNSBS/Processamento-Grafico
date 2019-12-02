@@ -8,22 +8,6 @@
 
 #define M_PI 3.141592653589793
 
-// float random()
-// {
-//     return static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-// }
-
-vec3 Rand_In_Disk()
-{
-    vec3 p;
-    do{
-        
-        p = (vec3(random(), random(), 0) * 2) - vec3(1.0, 1.0, 0.0);
-    }while( dot(p, p) >= 1.0);
-
-    return p;
-}
-
 class Camera
 {
 public: 
@@ -106,14 +90,14 @@ public:
     {
         //Converte o ponto x do canvas para raster space
         //Multiplica pelo aspectratio, pois o canvas pode nao ser quadrado e gerar distorcao
-        float Px = (2 * ( (x ) * invWidth) - 1) * half_width; 
-        float Py = (1 - 2 * ( (y ) * invHeight)) * half_height; 
+        float Px = (2.0 * ( ( x ) * invWidth) - 1.0) * half_width; 
+        float Py = (1.0 - 2.0 * ( ( y ) * invHeight)) * half_height; 
 
-        vec3 origin = vec3(0,0,0);
-        vec3 dir = vec3(Px, Py, -1) - origin;
-        camToWorld.mult_point_matrix(origin, origin);
+        // vec3 origin = vec3(0,0,0);
+        vec3 dir = vec3(Px, Py, -1); //- origin;
+        // camToWorld.mult_point_matrix(origin, origin);
         camToWorld.mult_vec_matrix(dir, dir);
         dir.make_unit_vector();
-        return Ray(origin , dir);
+        return Ray(position , dir);
     }
 };

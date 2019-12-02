@@ -68,9 +68,9 @@ public:
         ofs << "P6\n" << width << " " << height << "\n255\n"; 
         for (unsigned i = 0; i < width * height; ++i)
         { 
-            ofs <<  (unsigned char)(std::min(float(1), (float)buffer[i].x()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].y()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].z()) * 255.0 ); 
+            ofs <<  (unsigned char)(std::min(float(1), (float)buffer[i].x()) * 255.99 ) << 
+                    (unsigned char)(std::min(float(1), (float)buffer[i].y()) * 255.99 ) << 
+                    (unsigned char)(std::min(float(1), (float)buffer[i].z()) * 255.99 ); 
         }
         ofs.close();
 
@@ -105,26 +105,26 @@ public:
         gaussBlur_1(filtered, blurred, this->width, this->height, 3.0f);
 
         // Save result to a PPM image (keep these flags if you compile under Windows)
-        std::ofstream ofs2(filepath + filename + "_filtered.ppm", std::ios::out | std::ios::binary); 
-        ofs2 << "P6\n" << width << " " << height << "\n255\n"; 
-        for (unsigned i = 0; i < width * height; ++i)
-        { 
-            ofs2 << (unsigned char)(std::min(float(1), (float)filtered[i].x()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)filtered[i].y()) * 255.0 ) << 
-                    (unsigned char)(std::min(float(1), (float)filtered[i].z()) * 255.0 ); 
-        }
-        ofs2.close();
+        // std::ofstream ofs2(filepath + filename + "_filtered.ppm", std::ios::out | std::ios::binary); 
+        // ofs2 << "P6\n" << width << " " << height << "\n255\n"; 
+        // for (unsigned i = 0; i < width * height; ++i)
+        // { 
+        //     ofs2 << (unsigned char)(std::min(float(1), (float)filtered[i].x()) * 255.99 ) << 
+        //             (unsigned char)(std::min(float(1), (float)filtered[i].y()) * 255.99 ) << 
+        //             (unsigned char)(std::min(float(1), (float)filtered[i].z()) * 255.99 ); 
+        // }
+        // ofs2.close();
 
 
-        std::ofstream ofs_blur(filepath + filename + "_blurred.ppm", std::ios::out | std::ios::binary); 
-        ofs_blur << "P6\n" << width << " " << height << "\n255\n"; 
-        for (unsigned i = 0; i < width * height; ++i)
-        { 
-            ofs_blur << (unsigned char)(std::min(float(1), (float)blurred[i].x()) * 255.0 ) << 
-                        (unsigned char)(std::min(float(1), (float)blurred[i].y()) * 255.0 ) << 
-                        (unsigned char)(std::min(float(1), (float)blurred[i].z()) * 255.0 ); 
-        }
-        ofs_blur.close();
+        // std::ofstream ofs_blur(filepath + filename + "_blurred.ppm", std::ios::out | std::ios::binary); 
+        // ofs_blur << "P6\n" << width << " " << height << "\n255\n"; 
+        // for (unsigned i = 0; i < width * height; ++i)
+        // { 
+        //     ofs_blur << (unsigned char)(std::min(float(1), (float)blurred[i].x()) * 255.99 ) << 
+        //                 (unsigned char)(std::min(float(1), (float)blurred[i].y()) * 255.99 ) << 
+        //                 (unsigned char)(std::min(float(1), (float)blurred[i].z()) * 255.99 ); 
+        // }
+        // ofs_blur.close();
 
 
         for(int i = 0; i < height; i++)

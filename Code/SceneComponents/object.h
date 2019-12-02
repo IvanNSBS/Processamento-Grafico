@@ -32,7 +32,7 @@ std::uniform_real_distribution<float> distributor(0, 1);
 vec3 random_in_unit_sphere() {
     vec3 p;
     do {
-        p = ( vec3( distributor(generator), distributor(generator), distributor(generator) ) * 2.0 )- vec3(1,1,1);
+        p = ( vec3( drand48(), drand48(), drand48() ) * 2.0 )- vec3(1,1,1);
     } while (p.squared_length() >= 1.0);
     return p;
 }
@@ -413,12 +413,6 @@ public:
             rec.hitted = (Object*)this;
             rec.mat = this->material;
             rec.t = t;
-			// w u v -> done (not good)
-			// w v u -> next (seems good)
-			// u w v -> done
-			// u v w -> done
-			// v u w -> done
-			// v w u
             rec.nhit =  w*tr.normal[0] + u*tr.normal[1] + v*tr.normal[2];
             rec.phit = r.getOrigin() + (r.getDirection() * t);
             return true;
