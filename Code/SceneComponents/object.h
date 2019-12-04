@@ -423,7 +423,6 @@ public:
     }
 
     virtual bool intersect(const Ray& r, float &tmin, float &tmax, HitRecord& rec) const {
-        const float EPSILON = 0.0000001;
         rec.t = tmax;
         bool intersect = false;
 

@@ -8,7 +8,7 @@
 #include <vector>
 #include <limits>
 #include "camera.h"
-
+#include <typeinfo>
 #include <random>
 
 std::default_random_engine gen; 
@@ -86,33 +86,37 @@ public:
         vec3 attenuation;
         ScatterInfo sinfo;
 
-        //global illumination
-        float obstruction = 1.f;
-        for (unsigned i = 0; i < lights.size(); ++i) 
-        { 
-            vec3 lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
-            lightDirection.make_unit_vector(); 
-            HitRecord last_rec;
-            last_rec.t = options.tmax;
-            for (unsigned j = 0; j < objects.size(); ++j)
+        if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo)){
+            surfaceColor = hitted->material->emmited() + sinfo.attenuation*trace(sinfo.r1, depth+1);
+            //global illumination
+            // float obstruction = 0.0f;
+            for (unsigned i = 0; i < lights.size(); ++i) 
             { 
-                if (objects[j] != hitted)
-                {
-                    Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
-                    HitRecord lrec;
-                    if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
-                        if ( lrec.t < last_rec.t )
-                            last_rec = lrec;
-                } 
-            }
-            if ( last_rec.hitted != nullptr ){
-                if(last_rec.hitted->material->matType != mat_type::light && last_rec.hitted->material->matType != mat_type::dielectric)
-                    obstruction = 0.1f;
-            }
+                vec3 lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
+                lightDirection.make_unit_vector(); 
+                HitRecord last_rec;
+                last_rec.t = options.tmax;
+                for (unsigned j = 0; j < objects.size(); ++j)
+                { 
+                    if (objects[j] != hitted )
+                    {
+                        Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
+                        HitRecord lrec;
+                        if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
+                            if ( lrec.t < last_rec.t )
+                                last_rec = lrec;
+                    } 
+                }
+                if ( last_rec.hitted != nullptr ){
+                    if(last_rec.hitted->material->matType != mat_type::light)
+                        surfaceColor *= (last_rec.t / (rec.phit - lights[i]->center).length());
+                    // else if(last_rec.hitted->material->matType == mat_type::light)
+                        // surfaceColor *= (last_rec.hitted->material->emissionColor * last_rec.hitted->material->lightIntensity);
+                }         
 
+            }
+            return surfaceColor;
         }
-        if(hitted->material->scatter(r, rec.phit, rec.nhit, sinfo))
-            return hitted->material->emmited() + sinfo.attenuation*trace(sinfo.r1, depth+1);
         else
             return hitted->material->emmited();
         // surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);

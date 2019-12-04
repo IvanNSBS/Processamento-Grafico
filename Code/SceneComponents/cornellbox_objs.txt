@@ -2,10 +2,10 @@
 Canvas 320 240
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 100 50
+Options 0.001 10000000 100 10
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
-Camera 0 0.8 2.4    0 0.8 1     0 1 0       45     1
+Camera 0 1 3    0 1 1     0 1 0       40     1
 
 #Materials(types are : Diffuse, Conductor, Dielectric, Light) -> obs:kd e ks são vetores 
 #entrada p/ diffuse : r b g kdx kdy kdz ksx ksy ksz alpha
@@ -23,11 +23,11 @@ Dielectric 1.5 1.0 1.0 1.0 Dii
 Light 1.0 1.0 1.0 3.0 LSource
 
 #Objects (apenas esferas)
-Sphere 0.0 2.0 0.0  0.15 LSource
-Sphere 0.6 0.3 -0.2 0.3 Chrome
+Sphere 0.0 2.0 0.5  0.15 LSource
+Sphere 0.6 0.3 -0.2 0.3 Red
 #Sphere 12.0 12.8 -25.0 4.0 LSource
 
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
 
 #FileName(salvo na pasta RenderedImages)
-Filename HD_CornellBox_Blinn_22_obstructed_final
+Filename 0_ObstructedCornellBox
