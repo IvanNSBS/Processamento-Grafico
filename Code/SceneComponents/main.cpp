@@ -120,13 +120,13 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
     string name3 = "Red";
     string name4 = "Green";
     // scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
-    // scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
-    // scene->add( new Mesh( vec3(0.0, -0.7, -31.0), vec3(6,6,6), vec3(0), findMat(mlist, name ), "./monkey_smooth.obj"));
-    scene->add( new Mesh( vec3(0.0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "./box-top-back.obj"));
-    scene->add( new Mesh( vec3(0.0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name2 ), "./box-bottom.obj"));
-    scene->add( new Mesh( vec3(0.0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "./box-right.obj"));
-    scene->add( new Mesh( vec3(0.0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name4 ), "./box-left.obj"));
-    scene->add( new Mesh( vec3(0.0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "./box-only.obj"));
+    // scene->add( new Mesh( vec3(0.0, -0.7, -31.0), vec3(6,6,6), vec3(0), findMat(mlist, name3 ), "./monkey_smooth.obj"));
+    // scene->add( new Mesh( vec3(0.6, 0.3, -0.2), vec3(0.3, 0.3, 0.3), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name3 ), "./monkey_smooth.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "./box-top-back.obj"));
+    scene->add( new Mesh( vec3(0, 0, 0), vec3(3,3,3), vec3(0), findMat(mlist, name2 ), "./box-bottom.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "./box-right.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name4 ), "./box-left.obj"));
+    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "./box-only.obj"));
     return;
 }
 
