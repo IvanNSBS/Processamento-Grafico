@@ -1,5 +1,5 @@
 #canvas(image width and height)
-Canvas 320 240
+Canvas 640 480
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
 Options 0.001 10000000 4000 50
@@ -25,7 +25,7 @@ Light 0.85 0.9 0.4 1.4 LSource
 
 #Objects (apenas esferas)
 #Sphere 0.0 2.0 0.5  0.15 LSource
-Sphere  0.3 0.3 0.5 0.3 Di
+Sphere  0.3 0.3 0.5 0.3 Dii
 #Sphere 12.0 12.8 -25.0 4.0 LSource
 
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
