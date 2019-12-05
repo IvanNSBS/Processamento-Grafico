@@ -115,7 +115,6 @@ public:
             //     }         
 
             // }
-            return surfaceColor;
         }
         else
             return hitted->material->emmited();

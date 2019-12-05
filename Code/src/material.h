@@ -117,9 +117,10 @@ class Diffuse : public Material {
 
         if(random_float() > Ks.x() ){
             vec3 target = phit + nhit + random_in_unit_sphere();
+            vec3 rdir = r_in.getDirection();
             sinfo.r1 = Ray(phit, target-phit);
-            sinfo.attenuation = albedo;
-            sinfo.surface_col = this->surfaceColor;
+            sinfo.attenuation = albedo ;
+            sinfo.surface_col = this->surfaceColor ;
             return true;
         }
         else
@@ -129,8 +130,8 @@ class Diffuse : public Material {
             vec3 reflectionDirection = reflect(rdir, nhit); 
             sinfo.r1 = (Ray(phit, reflectionDirection + random_in_unit_sphere()*Ks.y())); 
             sinfo.r2 = Ray(0,0);
-            sinfo.attenuation = surfaceColor;
-            sinfo.surface_col = surfaceColor;
+            sinfo.attenuation = surfaceColor ;
+            sinfo.surface_col = surfaceColor ;
 
             // return dot(reflectionDirection, r_in.getDirection()) < 0;
             // sinfo.kr = 1;
@@ -186,21 +187,24 @@ class Dielectric : public Material{
             fresnel(dir, nhit, ref_idx, kr); 
             bool outside = dot(dir, nhit) < 0;
             vec3 vbias = nhit * bias;
-            
-            if(kr < 1)
-            {
-                vec3 refractionDirection = unit_vector(refract(dir, nhit, ref_idx)); 
-                vec3 refractionRayOrig = (outside) ? phit - vbias : phit + vbias; 
-                sinfo.r2 = Ray(refractionRayOrig, refractionDirection);
-            }
-
-            vec3 reflectionDirection = unit_vector(reflect(dir, nhit)); 
-            vec3 reflectionRayOrig = ( dot(reflectionDirection, nhit) < 0) ? phit - vbias : phit + vbias; 
 
             sinfo.attenuation = vec3(1.0f, 1.0f, 1.0f);
             sinfo.ior = ref_idx;
             sinfo.kr = kr;
-            sinfo.r1 = Ray(reflectionRayOrig, reflectionDirection);
+
+            if(kr < 1 && random_float() < 0.6f)
+            {
+                vec3 refractionDirection = unit_vector(refract(dir, nhit, ref_idx)); 
+                vec3 refractionRayOrig = (outside) ? phit - vbias : phit + vbias; 
+                sinfo.r1 = Ray(refractionRayOrig, refractionDirection);
+            }
+            else{
+
+                vec3 reflectionDirection = unit_vector(reflect(dir, nhit)); 
+                vec3 reflectionRayOrig = ( dot(reflectionDirection, nhit) < 0) ? phit - vbias : phit + vbias; 
+                sinfo.r1 = Ray(reflectionRayOrig, reflectionDirection);
+            }
+
             return true;
         }
 
