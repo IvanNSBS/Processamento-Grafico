@@ -19,7 +19,7 @@
 #include "lodepng.h"
 #include "matrix44.h"
 #include <mutex>
-#include <condition_variable>
+#include <thread>
 
 #define min_x 0
 #define max_x 1
@@ -29,7 +29,7 @@
 #define max_z 5
 #define PI 3.141592653589793
 
-
+std::mutex b_mutex;
 inline float random_float(){
 	return rand() / (RAND_MAX + 1.0);
 }
@@ -420,18 +420,13 @@ public:
             rec.nhit =  w*tr.normal[0] + u*tr.normal[1] + v*tr.normal[2];
             rec.phit = r.getOrigin() + (r.getDirection() * t);
 			if(texture_buffer.size() > 0){
-				static std::mutex mutex;
-				static std::condition_variable cond;
 
 				vec2 st = w*tr.uv[0] + u*tr.uv[1] + v*tr.uv[2];
 				int tx = std::floor( st.x()*(float)texture_width);
 				int ty = std::floor( (1.0f - st.y())*(float)texture_height);
 				int idx = (ty*texture_width + tx);
-				std::unique_lock<std::mutex> lk{mutex};
-				rec.mat->surfaceColor = texture_buffer[idx];
-				cond.wait(lk);
-				mutex.unlock();
-				cond.notify_all();
+				if(idx >= 0 && idx < texture_buffer.size())
+					rec.mat->surfaceColor = texture_buffer[idx];
 			}
             return true;
         }

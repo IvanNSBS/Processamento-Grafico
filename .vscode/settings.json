@@ -62,6 +62,7 @@
         "memory_resource": "cpp",
         "optional": "cpp",
         "ratio": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "condition_variable": "cpp"
     }
 }

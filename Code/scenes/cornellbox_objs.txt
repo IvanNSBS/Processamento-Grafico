@@ -2,7 +2,7 @@
 Canvas 640 480
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 3000 2
+Options 0.001 10000000 2000 3
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
 Camera 0 1 3.2    0 1 1     0 1 0       50     1
