@@ -1,8 +1,8 @@
 #canvas(image width and height)
-Canvas 640 240
+Canvas 640 480
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 1000 10
+Options 0.001 10000000 3000 2
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
 Camera 0 1 3.2    0 1 1     0 1 0       50     1
@@ -22,7 +22,7 @@ Diffuse 0.0 0.39 0.82 0.0 0.39 0.82 0.15 0.1 0.0 1.0 Blue
 
 Dielectric 2.437 1.0 1.0 1.0 Di
 Dielectric 1.5 1.0 1.0 1.0 Dii
-Light 1.0 1.0 1.0 2.0 LSource
+Light 1.0 1.0 1.0 15.0 LSource
 
 #Objects (apenas esferas)
 #Sphere 0.0 2.0 0.5  0.15 LSource
@@ -32,4 +32,4 @@ Light 1.0 1.0 1.0 2.0 LSource
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
 
 #FileName(salvo na pasta RenderedImages)
-Filename Texture
+Filename Texture_new_2

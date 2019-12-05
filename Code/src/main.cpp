@@ -124,14 +124,13 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
     // scene->add( new Mesh( vec3(0.0, -7.7, -31.0), vec3(6,6,6), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name ), "./monkey_smooth.obj"));
     // scene->add( new Mesh( vec3(0.0, -0.7, -31.0), vec3(6,6,6), vec3(0), findMat(mlist, name3 ), "./monkey_smooth.obj"));
     // scene->add( new Mesh( vec3(0.6, 0.3, -0.2), vec3(0.3, 0.3, 0.3), vec3(34.6f, -50.1f, -4.56f), findMat(mlist, name3 ), "./monkey_smooth.obj"));
-    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "./back.obj"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/ceiling.obj"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/back.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/ceiling.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/back.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name2 ), "../objs/ground.obj", "../wood.png"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name4 ), "../objs/right_wall.obj"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "../objs/left_wall.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name4 ), "../objs/right_wall.obj"));
+    // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "../objs/left_wall.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/box_flat.obj"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, light ), "../objs/light.obj"));
+    scene->add( new Mesh( vec3(0, 0, 0), vec3(1.3,1.3,1.3), vec3(0), findMat(mlist, light ), "../objs/light.obj"));
     return;
 }
 
