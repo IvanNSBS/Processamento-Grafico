@@ -26,26 +26,21 @@
 #define max_z 5
 #define PI 3.141592653589793
 
-std::default_random_engine generator; 
-std::uniform_real_distribution<float> distributor(0, 1);
-//Calcula uma direcao aleatoria dentro de uma esfera
+
+inline float random_float(){
+	return rand() / (RAND_MAX + 1.0);
+}
+
 vec3 random_in_unit_sphere() {
     vec3 p;
     do {
-        p = ( vec3( drand48(), drand48(), drand48() ) * 2.0 )- vec3(1,1,1);
+        p = ( vec3( random_float(), random_float(), random_float() ) * 2.0 ) -  vec3(1,1,1);
     } while (p.squared_length() >= 1.0);
     return p;
 }
 
-// float drand48()
-// {
-//     return distributor(generator);
-// }
-
-//O objeto é uma esfera.
 
 class Object;
-
 class Object {
     public:
     Material* material;

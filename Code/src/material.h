@@ -10,17 +10,14 @@
 #include <utility>
 #include <cmath>
 
+float random_float();
 vec3 random_in_unit_sphere();
-
-// float drand48();
-
 enum mat_type{ lambertian, conductor, dielectric, light };
 
 //Calcula o vetor apos a reflexao com a superficie
 vec3 reflect( vec3 &v, const vec3& n) {
-
     // return unit_vector( unit_vector(n)+unit_vector(v));
-     return v - (n * (2*dot(v, n)));
+    return v - (n * (2*dot(v, n)));
 }
 
 struct ScatterInfo
@@ -118,7 +115,7 @@ class Diffuse : public Material {
     //baseada no local de impacto do raio incidente
     virtual bool scatter(const Ray& r_in, vec3 &phit, vec3 &nhit, ScatterInfo &sinfo) const  {
 
-        if(drand48() > Ks.x() ){
+        if(random_float() > Ks.x() ){
             vec3 target = phit + nhit + random_in_unit_sphere();
             sinfo.r1 = Ray(phit, target-phit);
             sinfo.attenuation = albedo;

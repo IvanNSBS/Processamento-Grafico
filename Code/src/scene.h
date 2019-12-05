@@ -72,7 +72,7 @@ public:
         //Se nao tem intersecao retorna background color
         if (!hitted)
         {
-            // return 0;
+            return vec3(0,0,0);
             vec3 unit_direction = r.getDirection();
             float t = 0.5 * (unit_direction.y() + 1.0);
             return (vec3(1.0, 1.0, 1.0) * (1.0 - t) ) + (vec3(0.5, 0.7, 1.0)*t);
@@ -119,36 +119,6 @@ public:
         }
         else
             return hitted->material->emmited();
-        // surfaceColor = sinfo.attenuation + trace(sinfo.r1, depth+1);
-
-        // if( false ){
-        //     for (unsigned i = 0; i < lights.size(); ++i) 
-        //     { 
-        //         vec3 lightDirection = (lights[i]->center + random_in_unit_sphere()*dynamic_cast<Sphere*>(lights[i])->radius) - rec.phit;  
-        //         lightDirection.make_unit_vector(); 
-        //         HitRecord last_rec;
-        //         last_rec.t = options.tmax;
-        //         for (unsigned j = 0; j < objects.size(); ++j)
-        //         { 
-        //             if (objects[j] != hitted )
-        //             {
-        //                 Ray n = Ray(rec.phit + rec.nhit * bias, lightDirection);
-        //                 HitRecord lrec;
-        //                 if (objects[j]->intersect(n, options.tmin, options.tmax, lrec) )
-        //                     if ( lrec.t < last_rec.t )
-        //                         last_rec = lrec;
-        //             } 
-        //         }
-        //         if ( last_rec.hitted != nullptr ){
-        //             if(last_rec.hitted->material->matType != mat_type::light && last_rec.hitted->material->matType != mat_type::dielectric)
-        //                 surfaceColor *= (last_rec.t / ((last_rec.phit - lights[i]->center).length()));
-        //         }
-
-        //     }
-        // }
-        //Delimita o valor da cor entre 0 e 1
-        // return vec3( clamp(surfaceColor.x, 0.0, 1.0), clamp(surfaceColor.y, 0.0, 1.0), 
-                        //  clamp(surfaceColor.z, 0.0, 1.0) ) + (hitted->material->emissionColor * hitted->material->lightIntensity);
     }
 
 
