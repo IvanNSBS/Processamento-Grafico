@@ -1,8 +1,8 @@
 #canvas(image width and height)
-Canvas 640 480
+Canvas 1280 960
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 2000 3
+Options 0.001 10000000 4000 3
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
 Camera 0 1 3.2    0 1 1     0 1 0       50     1
@@ -32,4 +32,4 @@ Light 1.0 1.0 1.0 15.0 LSource
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
 
 #FileName(salvo na pasta RenderedImages)
-Filename Texture_new_2
+Filename TextureHD
