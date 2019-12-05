@@ -40,45 +40,6 @@ vec3 random_in_unit_sphere() {
     return p;
 }
 
-class PHImage{
-	public:
-    int width, height;
-
-private:
-    std::vector<vec3> buffer;
-
-public:
-    PHImage(int width, int height){
-        this->width = width;
-        this->height = height;
-    
-        //Seta o tamanho do buffer para o canvas total
-        //Necessario, pois pode-se tentar setar um pixel numa posicao
-        //ainda nao existente no buffer(ex: buffer tem tamanho 10, mas tentou 
-        //setar o pixel na posicao 20)
-        this->buffer.reserve(width*height);
-    }
-
-    void SetPixel(int x, int y, const vec3& color){
-        buffer[y * width + x] = color;
-    }
-
-    void SaveAsPBM(const std::string &filepath, const std::string &filename)
-    {
-		std::cout << "saving pbm...\n";
-        // Save result to a PPM image (keep these flags if you compile under Windows)
-        std::ofstream ofs(filepath + filename + ".ppm", std::ios::out | std::ios::binary); 
-        ofs << "P6\n" << width << " " << height << "\n255\n"; 
-        for (unsigned i = 0; i < width * height; ++i)
-        { 
-            ofs <<  (unsigned char)(std::min(float(1), (float)buffer[i].x()) * 255.99 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].y()) * 255.99 ) << 
-                    (unsigned char)(std::min(float(1), (float)buffer[i].z()) * 255.99 ); 
-        }
-        ofs.close();
-    }
-};
-
 class Object;
 class Object {
     public:
@@ -169,7 +130,6 @@ public:
     std::vector<Triangle> tris;
 	std::vector<Triangle> v_bbox;
     vec3 bbox_center;
-	PHImage *canvas;
 	int texture_width, texture_height;
 	std::vector<vec3> texture_buffer;
 
@@ -184,7 +144,6 @@ public:
 			
 			if(diffuse_map){
 				decodeOneStep(diffuse_map);
-				canvas = new PHImage(texture_width, texture_height);
 			}
         }
     }
@@ -463,8 +422,8 @@ public:
 				int tx = std::floor( st.x()*(float)texture_width);
 				int ty = std::floor( (1.0f - st.y())*(float)texture_height);
 				int idx = (ty*texture_width + tx);
-				rec.mat->surfaceColor = texture_buffer[idx];
-				canvas->SetPixel(tx, ty, texture_buffer[idx]);
+				if(tx < texture_buffer.size())
+					rec.mat->surfaceColor = texture_buffer[idx];
 			}
             return true;
         }

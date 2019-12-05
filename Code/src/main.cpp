@@ -127,7 +127,7 @@ void readFile(Scene *scene, const std::string &filename, std::string &newfile){
     // scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "./back.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/ceiling.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/back.obj"));
-    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0,0,0), findMat(mlist, name2 ), "../objs/ground.obj", "../wood.png"));
+    scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name2 ), "../objs/ground.obj", "../wood.png"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name4 ), "../objs/right_wall.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name3 ), "../objs/left_wall.obj"));
     scene->add( new Mesh( vec3(0, 0, 0), vec3(1,1,1), vec3(0), findMat(mlist, name1 ), "../objs/box_flat.obj"));
@@ -160,12 +160,5 @@ int main(int argc, char **argv)
     std::cout << "RenderTime with " << tnum << " threads = "<< elapsed_secs << "s" << std::endl;
 
     scene->camera->canvas->SaveAsPBM("../images_new/", filename);
-    for(auto obj : scene->objects){
-        if( (Mesh*)obj ){
-            Mesh *mesh = dynamic_cast<Mesh*>(obj);
-            if(mesh->texture_buffer.size() > 0)
-                mesh->canvas->SaveAsPBM("../images_new/", "test");
-        }
-    }
     return 0; 
 }   
