@@ -72,7 +72,8 @@ public:
         //Se nao tem intersecao retorna background color
         if (!hitted)
         {
-            return vec3(0,0,0);
+            // return vec3(0,0,0);
+            return 1;
             vec3 unit_direction = r.getDirection();
             float t = 0.5 * (unit_direction.y() + 1.0);
             return (vec3(1.0, 1.0, 1.0) * (1.0 - t) ) + (vec3(0.5, 0.7, 1.0)*t);

@@ -119,7 +119,7 @@ class Diffuse : public Material {
             vec3 target = phit + nhit + random_in_unit_sphere();
             vec3 rdir = r_in.getDirection();
             sinfo.r1 = Ray(phit, target-phit);
-            sinfo.attenuation = albedo ;
+            sinfo.attenuation = this->surfaceColor ;
             sinfo.surface_col = this->surfaceColor ;
             return true;
         }
@@ -161,7 +161,7 @@ class Conductor : public Material{
                 phit - nhit * bias; 
             sinfo.r1 = (Ray(reflectionRayOrig, reflectionDirection + random_in_unit_sphere()*fuzz)); 
             sinfo.r2 = Ray(0,0);
-            sinfo.attenuation = albedo;
+            sinfo.attenuation = this->surfaceColor;
             sinfo.surface_col = this->surfaceColor;
             // sinfo.kr = 1;
             // sinfo.ior = 1;

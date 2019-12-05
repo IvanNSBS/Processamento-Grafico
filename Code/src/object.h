@@ -16,6 +16,7 @@
 #include <string>
 #include <cstring>
 #include "vec2.h"
+#include "lodepng.h"
 #include "matrix44.h"
 
 #define min_x 0
@@ -39,6 +40,44 @@ vec3 random_in_unit_sphere() {
     return p;
 }
 
+class PHImage{
+	public:
+    int width, height;
+
+private:
+    std::vector<vec3> buffer;
+
+public:
+    PHImage(int width, int height){
+        this->width = width;
+        this->height = height;
+    
+        //Seta o tamanho do buffer para o canvas total
+        //Necessario, pois pode-se tentar setar um pixel numa posicao
+        //ainda nao existente no buffer(ex: buffer tem tamanho 10, mas tentou 
+        //setar o pixel na posicao 20)
+        this->buffer.reserve(width*height);
+    }
+
+    void SetPixel(int x, int y, const vec3& color){
+        buffer[y * width + x] = color;
+    }
+
+    void SaveAsPBM(const std::string &filepath, const std::string &filename)
+    {
+		std::cout << "saving pbm...\n";
+        // Save result to a PPM image (keep these flags if you compile under Windows)
+        std::ofstream ofs(filepath + filename + ".ppm", std::ios::out | std::ios::binary); 
+        ofs << "P6\n" << width << " " << height << "\n255\n"; 
+        for (unsigned i = 0; i < width * height; ++i)
+        { 
+            ofs <<  (unsigned char)(std::min(float(1), (float)buffer[i].x()) * 255.99 ) << 
+                    (unsigned char)(std::min(float(1), (float)buffer[i].y()) * 255.99 ) << 
+                    (unsigned char)(std::min(float(1), (float)buffer[i].z()) * 255.99 ); 
+        }
+        ofs.close();
+    }
+};
 
 class Object;
 class Object {
@@ -130,14 +169,23 @@ public:
     std::vector<Triangle> tris;
 	std::vector<Triangle> v_bbox;
     vec3 bbox_center;
+	PHImage *canvas;
+	int texture_width, texture_height;
+	std::vector<vec3> texture_buffer;
+
     Mesh() : Object(0, nullptr){}
-    Mesh(const vec3 &c, const vec3 &scale, const vec3& rot, Material* mat, std::string filepath): Object(c, mat){
+    Mesh(const vec3 &c, const vec3 &scale, const vec3& rot, Material* mat, std::string filepath, const char* diffuse_map = nullptr): Object(c, mat){
         if(load_mesh_from_file( filepath.c_str() )){
             this->scale(scale);
             translate(c);
             rot_x(rot.x());
             rot_y(rot.y());
             rot_z(rot.z());
+			
+			if(diffuse_map){
+				decodeOneStep(diffuse_map);
+				canvas = new PHImage(texture_width, texture_height);
+			}
         }
     }
 
@@ -410,6 +458,14 @@ public:
             rec.t = t;
             rec.nhit =  w*tr.normal[0] + u*tr.normal[1] + v*tr.normal[2];
             rec.phit = r.getOrigin() + (r.getDirection() * t);
+			if(texture_buffer.size() > 0){
+				vec2 st = w*tr.uv[0] + u*tr.uv[1] + v*tr.uv[2];
+				int tx = std::floor( st.x()*(float)texture_width);
+				int ty = std::floor( (1.0f - st.y())*(float)texture_height);
+				int idx = (ty*texture_width + tx);
+				rec.mat->surfaceColor = texture_buffer[idx];
+				canvas->SetPixel(tx, ty, texture_buffer[idx]);
+			}
             return true;
         }
         else {
@@ -637,6 +693,41 @@ public:
 
 		return true;
 	} 
+
+	void decodeOneStep(const char* filename) {
+		std::vector<unsigned char> png;
+		std::vector<unsigned char> image; //the raw pixels
+		unsigned width, height;
+		lodepng::State state; //optionally customize this one
+
+		unsigned error = lodepng::load_file(png, filename); //load the image file with given filename
+		if(!error) error = lodepng::decode(image, width, height, state, png);
+
+		//if there's an error, display it
+		if(error) std::cout << "decoder error " << error << ": "<< lodepng_error_text(error) << std::endl;
+
+		//the pixels are now in the vector "image", 4 bytes per pixel, ordered RGBARGBA..., use it as texture, draw it, ...
+		texture_buffer.reserve( (int)width*(int)height);
+		for(int i = 0; i < image.size(); i+=4)
+			texture_buffer.push_back( vec3( float(image[i]), float(image[i+1]), float(image[i+2]) )/255.0f );
+		
+		texture_width = (int)width;
+		texture_height = (int)height;
+		printf("buffer size = %d\n", (int)texture_buffer.size());
+		printf("width*height = %d\n", (int)width*(int)height);
+
+        std::ofstream ofs2("_tonemapped.ppm", std::ios::out | std::ios::binary); 
+        ofs2 << "P6\n" << width << " " << height << "\n255\n"; 
+        for (unsigned i = 0; i < width * height; ++i)
+        { 
+            ofs2 <<  (unsigned char)(texture_buffer[i].x()) << 
+                     (unsigned char)(texture_buffer[i].y()) << 
+                     (unsigned char)(texture_buffer[i].z()); 
+		}
+        ofs2.close();
+	}
+	
+
         
 };
 
