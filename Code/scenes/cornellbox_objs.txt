@@ -2,7 +2,7 @@
 Canvas 320 240
 
 #SceneOptions(tmin, tmax, raysPerPixel, maxRayDepth)
-Options 0.001 10000000 400 15
+Options 0.001 10000000 4000 50
 
 #camera(position, target, up, fov, near), usa modelo lookfrom-lookat
 Camera 0 1 3.2    0 1 1     0 1 0       50     1
@@ -12,10 +12,10 @@ Camera 0 1 3.2    0 1 1     0 1 0       50     1
 #entrada p/ conductor : r b g kdx kdy kdz ksx ksy ksz alpha fuzz (0 <= fuzz <= 1, dita o quao polido é o metal(0 é 100% polido))
 #entrada p/ dielectric : ior r g b
 #entrada p/ light : r g b intensity
-Diffuse 0.800000 0.038828 0.038828 0.800000 0.038828 0.038828 0.2 1.0 0.0 1.0 Red
-Diffuse 0.022108 0.800000 0.068285 0.022108 0.800000 0.068285 0.2 1.0 0.0 1.0 Green
-Diffuse 0.696279 0.800000 0.753041 0.696279 0.800000 0.753041 0.7 0.04 0.0 1.0 WhiteFloor
-Diffuse 0.696279 0.800000 0.753041 0.696279 0.800000 0.753041 0.0 0.0 0.0 1.0 White
+Diffuse 0.65 0.05 0.05 0.65 0.05 0.05 0.2 1.0 0.0 1.0 Red
+Diffuse 0.12 0.45 0.15 0.12 0.45 0.15 0.2 1.0 0.0 1.0 Green
+Diffuse 0.73 0.73 0.73 0.73 0.73 0.73 0.7 0.04 0.0 1.0 WhiteFloor
+Diffuse 0.73 0.73 0.73 0.73 0.73 0.73 0.0 0.0 0.0 1.0 White
 Conductor 0.25 0.25 0.25 0.4 0.4 0.4 0.774597 0.774597 0.774597 76.8 0.0 Chrome
 Diffuse 0.0 0.39 0.82 0.0 0.39 0.82 0.15 0.1 0.0 1.0 Blue
 
@@ -31,4 +31,4 @@ Sphere  0.3 0.3 0.5 0.3 Di
 #Sphere 0.0 -3.9 -31.0 7.0 RedSpecular 
 
 #FileName(salvo na pasta RenderedImages)
-Filename Physical_2
+Filename ColorFix
