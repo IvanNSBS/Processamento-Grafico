@@ -88,8 +88,9 @@ public:
     //Ler comentarios na implementaçao para mais detalhes de como as coisas funcionam
     Ray GetRay(float x, float y)
     {
-        //Converte o ponto x do canvas para raster space
-        //Multiplica pelo aspectratio, pois o canvas pode nao ser quadrado e gerar distorcao
+        //Converte o ponto x de RasterSpace(coord. de tela) pra Screen space
+        //e depois normaliza (NDC)
+        // Multiplica pelo aspectratio, pois o canvas pode nao ser quadrado e gerar distorcao
         float Px = (2.0 * ( ( x ) * invWidth) - 1.0) * half_width; 
         float Py = (1.0 - 2.0 * ( ( y ) * invHeight)) * half_height; 
 

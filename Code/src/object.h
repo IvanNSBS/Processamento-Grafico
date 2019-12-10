@@ -134,9 +134,20 @@ public:
     vec3 bbox_center;
 	int texture_width, texture_height;
 	std::vector<vec3> texture_buffer;
-
+	bool use_bbox;
     Mesh() : Object(0, nullptr){}
-    Mesh(const vec3 &c, const vec3 &scale, const vec3& rot, Material* mat, std::string filepath, const char* diffuse_map = nullptr): Object(c, mat){
+	Mesh(const vec3 &c, const vec3 &scale, const vec3& rot, Material* mat, std::string filepath, const bool &bb = true): Object(c, mat){
+		use_bbox = bb;
+        if(load_mesh_from_file( filepath.c_str() )){
+            this->scale(scale);
+            translate(c);
+            rot_x(rot.x());
+            rot_y(rot.y());
+            rot_z(rot.z());
+        }
+    }
+    Mesh(const vec3 &c, const vec3 &scale, const vec3& rot, Material* mat, std::string filepath, const char* diffuse_map = nullptr, const bool &bb = true): Object(c, mat){
+		use_bbox = bb;
         if(load_mesh_from_file( filepath.c_str() )){
             this->scale(scale);
             translate(c);
@@ -439,16 +450,18 @@ public:
         rec.t = tmax;
         bool intersect = false;
 
-		// bool interesct_bbox = false;
-		// for ( Triangle tr : this->v_bbox){
-        //     HitRecord ph;
-        //     if(intersect_triangle( tr, r, ph )){
-        //         interesct_bbox = true;
-		// 		break;
-        //     }
-        // }
-		// if(!interesct_bbox)
-		// 	return false;
+		if(use_bbox){
+			bool interesct_bbox = false;
+			for ( Triangle tr : this->v_bbox){
+				HitRecord ph;
+				if(intersect_triangle( tr, r, ph )){
+					interesct_bbox = true;
+					break;
+				}
+			}
+			if(!interesct_bbox)
+				return false;
+		}
 			
         for ( const Triangle &tr : this->tris){
             HitRecord ph;
@@ -648,7 +661,8 @@ public:
 		vec3 v6(mx, My, mz);
 		vec3 v7(mx, my, mz);
 		std::vector<vec3> verts = {v0, v1, v2, v3, v4, v5, v6, v7};
-		// build_bbox(verts);
+		if(use_bbox)
+			build_bbox(verts);
 		std::cout << "vertSize = " << vertexIndices.size() << "\n";
 		std::cout << "normalSize = " << normalIndices.size() << "\n";
 		std::cout << "uvSize = " << uvIndices.size() << "\n";
