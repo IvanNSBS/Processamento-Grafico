@@ -49,7 +49,7 @@ public:
     //Implementa o modelo de iluminacao escolhido, retornando uma cor
     vec3 trace(const Ray& r, int depth){
         if(depth > options.rayDepth)
-            return vec3(0,0,0);
+            return vec3(1,1,1);
 
         Object* hitted = NULL;
         HitRecord rec;

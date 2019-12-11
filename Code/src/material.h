@@ -138,7 +138,9 @@ class Diffuse : public Material {
             // sinfo.ior = 1;
             return (dot(sinfo.r1.getDirection(), nhit) > 0);
         }
-        
+    }
+    virtual vec3 emmited() const{
+        return  surfaceColor*Ks.z();
     }
     
     vec3 albedo = vec3(0);
